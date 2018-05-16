@@ -63,6 +63,7 @@ export default {
   data() {
     return {
       choose: {},
+      treeWidth:0
     };
   },
   methods: {
@@ -125,7 +126,7 @@ export default {
   },
   computed:{
       width(){
-          let _tableWidth = this.tableWidth
+          let _tableWidth = this.treeWidth
           if(!this.$el) return []
           let _arr = this.headData.map(ele => {
               if(ele.width){
@@ -142,6 +143,11 @@ export default {
           })
           return _arr 
       }
+  },
+  mounted () {
+    this.$nextTick(() => {
+        this.treeWidth = this.tableWidth
+    })
   }
 };
 </script>
