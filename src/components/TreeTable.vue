@@ -6,12 +6,15 @@
  */
 <template>
     <div class="tree_wrap">
-        <div class="head_wrap">
-            <span class="head_th" v-for="(ele,index) in headData" :style="{width:width[index]+'px'}" :key="ele.value">{{ele.name}}</span>
-            <span class="head_th" style="width:20px;float:right;"></span>
+        <div class="head_wrap" :style="{right:scrollWidth + 'px'}">
+            <div class="table_wrap" :style="{width:computedWidth + 'px'}">
+                <span class="head_th" v-for="(ele,index) in headData" :style="{width:width[index]+'px'}" :key="ele.value">{{ele.name}}</span>
+            </div>
         </div>
-        <div class="body_wrap" v-if="treeData.length > 0">
-            <TreeElement :treeData = "treeData" :order="order" :width="width"></TreeElement>
+        <div class="body_wrap" v-if="treeData.length > 0" @scroll="scrollFunc">
+            <div class="table_wrap" :style="{width:computedWidth + 'px'}">
+                <TreeElement :treeData = "treeData" :order="order" :treeLayer = "0" :tableWidth="tableWidth" :headData="headData"></TreeElement>
+            </div>
         </div>
         <span class="tips" v-else>暂无数据</span>
     </div>
@@ -53,12 +56,16 @@ export default {
     return {
       choose: {},
       isClickedId:"",
-      tableWidth:0
+      tableWidth:0,
+      scrollWidth: 20, //滚动条宽度
     };
   },
   methods: {
       resize(){
-          this.tableWidth = this.$el.clientWidth
+          this.tableWidth = this.$el.querySelectorAll(".head_wrap")[0].clientWidth
+      },
+      scrollFunc(){
+          this.$el.querySelectorAll(".head_wrap")[0].scrollLeft = this.$el.querySelectorAll(".body_wrap")[0].scrollLeft
       },
     getisClicked(id){
         this.isClickedId = id
@@ -78,9 +85,9 @@ export default {
         var newArr = [],
             _pid = this.pIdName;
         arr.forEach((ele, index) => {
+            this.$set(ele,"isShow",this.allShow ? true : false)
             this.$set(ele,"isClicked",this.isClicked == ele.id ? true : false)
             if (ele[_pid] == null || ele[_pid] == "") {
-                this.$set(ele,"isShow",this.allShow ? true : false)
                 this.$set(ele, "childNode", this.checkChildNode(ele.id, arr));
                 newArr.push(ele)
             }
@@ -93,7 +100,6 @@ export default {
             _pid = this.pIdName;
         arr.forEach(function(element, index) {
             if (element[_pid] == cId) {
-                element.type == "工作项" ? this.$set(element,"wbsType",type) : ""
                 this.$set(element, "childNode", this.checkChildNode(element.id,arr))
                 element.childNode.length == 0 ? element.childNode = null : ""
                 currentArr.push(element)
@@ -101,6 +107,41 @@ export default {
         }, this);
         return currentArr;
     },
+    getScrollBarSize() {
+        let cached = 0
+        const inner = document.createElement('div');
+        inner.style.width = '100%';
+        inner.style.height = '200px';
+
+        const outer = document.createElement('div');
+        const outerStyle = outer.style;
+
+        outerStyle.position = 'absolute';
+        outerStyle.top = 0;
+        outerStyle.left = 0;
+        outerStyle.pointerEvents = 'none';
+        outerStyle.visibility = 'hidden';
+        outerStyle.width = '200px';
+        outerStyle.height = '150px';
+        outerStyle.overflow = 'hidden';
+
+        outer.appendChild(inner);
+
+        document.body.appendChild(outer);
+
+        const widthContained = inner.offsetWidth;
+        outer.style.overflow = 'scroll';
+        let widthScroll = inner.offsetWidth;
+
+        if (widthContained === widthScroll) {
+            widthScroll = outer.clientWidth;
+        }
+
+        document.body.removeChild(outer);
+
+        cached = widthContained - widthScroll;
+    return cached;
+}
   },
   computed:{
       width(){
@@ -119,8 +160,14 @@ export default {
                   return 0
               }
           })
-          _arr[_arr.length - 1] -= 20
           return _arr 
+      },
+      computedWidth(){
+          let _width = 0
+          this.width.forEach(ele => {
+              _width += ele
+          })
+          return _width
       },
       order(){
           return this.headData.map(ele => ele.value)
@@ -133,6 +180,7 @@ export default {
   mounted(){
     this.resize();
     window.addEventListener("resize", this.resize, false);
+    this.scrollWidth = this.getScrollBarSize()
   }
 };
 </script>
@@ -146,8 +194,12 @@ export default {
     overflow: auto;
     border: 1px solid #ddd;
   .head_wrap {
+        position: absolute;
         box-sizing: border-box;
-        width: 100%;
+        top:0;
+        left:0;
+        right:0;
+        border-bottom:1px solid #ddd;
         overflow: hidden;
         border-collapse: collapse;
     .head_th {
@@ -167,13 +219,19 @@ export default {
   }
 .body_wrap {
     position: absolute;
-    top:40px;
+    box-sizing: border-box;
+    top:41px;
     bottom:0;
     width: 100%;
-    border: 1px solid #ddd;
-    overflow-x: hidden;
+    // border-right: 1px solid #ddd;
+    // overflow-x: hidden;
     overflow-y: scroll;
     background-color: #fff;
+    .table_wrap{
+        box-sizing: border-box;
+        width: 100%;
+        overflow: hidden;
+    }
 }
 .tips{
     display: block;

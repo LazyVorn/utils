@@ -7,33 +7,33 @@
 <template>
     <div class="tree_element_wrap">
         <div class="tree_element_table" v-for="info in treeData" :key="info.id" :class="!info.isShow ? 'hide' : ''">
-            <div class="tree_table_title" @click.stop="liClick(info,$event)" :class="info.liClicked ? 'active' : ''">
+            <div class="tree_table_title" @click.stop="liClick(info,$event)" :class="[info.liClicked ? 'active' : '',`layer${treeLayer}`]">
                 <template v-for="(ele,index) in order">
                     <span v-if="index == 0" class="ele_td" :style="{paddingLeft:left + 'px',width:width[index] + 'px'}" :title="info[order[index]]">
                         <i class="arrow iconfont" v-if="(info.childNode && info.childNode.length != 0) || info.pid ==''" 
                         @click.stop="arrowClick(info)">{{!info.isShow ? "&#xe7fc;" : "&#xe7fb"}}</i>
                         {{info[order[index]]}}
                     </span>
-                    <span v-else class="ele_td" :title="info[order[index]]" :style="{width:width[index] + 'px'}">
-                        <lv-select v-if="index ==3" :data="selectData" multiple filterable></lv-select>
-                    </span>
+                    <span v-else class="ele_td" :title="info[order[index]]" :style="{width:width[index] + 'px'}">{{info[order[index]]}}</span>
                 </template>
-                <span style="width:20px"></span>
             </div>
             <div class="tree_table_box">
-                <TreeElement v-if="info.childNode" :treeData="info.childNode" @getLiClick="getLiClick" :left="parseInt(left)+25" :order="order" :width="width" @checkBox="checkBox"></TreeElement>
+                <TreeElement v-if="info.childNode" :treeData="info.childNode" :treeLayer = "treeLayer + 1" @getLiClick="getLiClick" :left="parseInt(left)+25" :order="order" :tableWidth="tableWidth" :headData="headData" @checkBox="checkBox"></TreeElement>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-import LvSelect from "./LvSelect"
 export default {
   name: "TreeElement",
   props: {
     //每层padding-left增加,作出分层效果
     left: {
+      type: Number,
+      default: 0
+    },
+    tableWidth: {
       type: Number,
       default: 0
     },
@@ -49,19 +49,20 @@ export default {
         return [];
       }
     },
-    width: {
+    headData: {
       type: Array,
       default: function() {
         return [];
       }
-    }
+    },
+      treeLayer:{
+          type:Number,
+          default:0
+      },
   },
-  components:{LvSelect},
   data() {
     return {
       choose: {},
-          selectData:[{"id":"6298842148508439286","name":"张浩","pinyinName":"zhanghao","pinyinCode":"2608011407080115","parentId":null,"type":"member","order":null,"tag":null,"children":[]},{"id":"6286777766680400383","name":"刘长城","pinyinName":"liuchangcheng","pinyinCode":"12092103080114070308051407","parentId":null,"type":"member","order":null,"tag":null,"children":[]},{"id":"6338974343083102574","name":"武星","pinyinName":"wuxing","pinyinCode":"232124091407","parentId":null,"type":"member","order":null,"tag":null,"children":[]},{"id":"6346542892740346042","name":"彭辉","pinyinName":"penghui","pinyinCode":"16051407082109","parentId":null,"type":"member","order":null,"tag":null,"children":[]},{"id":"5917242334161117925","name":"张波","pinyinName":"zhangbo","pinyinCode":"26080114070215","parentId":null,"type":"member","order":null,"tag":null,"children":[]}],
-          
     };
   },
   methods: {
@@ -73,11 +74,6 @@ export default {
     },
     arrowClick(e) {
       this.$set(e, "isShow", !e.isShow);
-      !e.childNode
-        ? ""
-        : e.childNode.forEach(ele => {
-            this.$set(ele, "isShow", e.isShow);
-          });
     },
     //获取选中的部位id
     getChoosedId(e) {
@@ -104,25 +100,48 @@ export default {
         : e.childNode.forEach(ele => {
             this.$set(ele, "isClick", e.isClick);
           });
-      this.$emit("checkBox");
+      this.$forceUpdate()
+      this.$emit("checkBox",e.pid);
     },
     //准备向上传递用的id
-    checkBox() {
-      let _num = 0;
-      this.treeData[0].childNode.forEach(ele => {
+    checkBox(pid) {
+      let _num = 0,
+        _obj = this.treeData.filter(ele => ele.id == pid)[0]
+      _obj.childNode.forEach(ele => {
         ele.isClick == true ? (_num += 1) : "";
       });
-      if (_num == this.treeData[0].childNode.length) {
-        this.treeData[0].isClick = true;
-      } else if (this.treeData[0].isClick) {
-        this.treeData[0].isClick = false;
+      if (_num == _obj.childNode.length) {
+        _obj.isClick = true;
+      } else if (_obj.isClick) {
+        _obj.isClick = false;
       }
-      if (!this.treeData[0].pid || this.treeData[0].pid == "") {
+      this.$forceUpdate()
+      if (!_obj.pid || _obj.pid == "") {
         this.getChoosedId(this.treeData);
       } else {
-        this.$emit("checkBox");
+        this.$emit("checkBox",_obj.pid);
       }
     }
+  },
+  computed:{
+      width(){
+          let _tableWidth = this.tableWidth
+          if(!this.$el) return []
+          let _arr = this.headData.map(ele => {
+              if(ele.width){
+                  let _width = ele.width
+                  if(ele.width.toString().indexOf("px") > 1){
+                      _width = ele.width.split("px")[0]
+                  } else if(ele.width.toString().indexOf("%") > 1){
+                      _width = parseFloat(ele.width.split("%")[0]) / 100 * _tableWidth
+                  }
+                  return parseFloat(_width)
+              } else {
+                  return 0
+              }
+          })
+          return _arr 
+      }
   }
 };
 </script>
@@ -147,13 +166,14 @@ export default {
         height: 40px;
         line-height: 40px;
         text-align: center;
-        border-right: 1px solid #ddd;
+        border-left: 1px solid #ddd;
         border-bottom: 1px solid #ddd;
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow: hidden;
         transition: 0.2s;
         &:first-child {
+            border-left: none;
           text-align: left;
         }
         & > em {
