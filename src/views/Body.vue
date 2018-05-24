@@ -2,21 +2,27 @@
     <div class="body">
         <router-link to="/6068355004487797345/about">sadfasdf</router-link>
         <h1>This is an body page</h1>
+        <paste></paste>
         <div style="width:1000px;height:500px;margin-left:100px;">
         <TreeTable :headData="head" :bodyData="data" :allShow="false" pIdName="pid"></TreeTable>
         </div>
         <div style="margin-left:900px;"><lv-select :data="selectData" multiple filterable></lv-select></div>
+        <moving-modal></moving-modal>
     </div>
 </template>
 
 <script>
+import MovingModal from "../components/MovingModal"
 import TreeTable from "../components/TreeTable"
 import LvSelect from "../components/LvSelect"
+import Paste from "../components/Paste"
 export default {
   name: "Body",
   components: {
+      MovingModal,
       TreeTable,
-      LvSelect
+      LvSelect,
+      Paste
   },
   data () {
       return {

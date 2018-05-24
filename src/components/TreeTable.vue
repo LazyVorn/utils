@@ -193,6 +193,7 @@ export default {
     height: 100%;
     overflow: auto;
     border: 1px solid #ddd;
+      background-color: #eee;
   .head_wrap {
         position: absolute;
         box-sizing: border-box;
