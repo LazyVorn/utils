@@ -59,7 +59,6 @@ export default {
   },
   data() {
     return {
-      choose: {},
       isClickedId:"",
       tableWidth:0,
       scrollWidth: 20, //滚动条宽度
@@ -76,11 +75,11 @@ export default {
       },
       checkboxFunc(){
           this.allIsClick = !this.allIsClick
-          this.bodyData.forEach(ele => this.$set(ele,"isClick",this.allIsClick))
+          this.bodyData.forEach(ele => this.$set(ele,"isChoosed",this.allIsClick))
           this.$emit("getChooseBox",this.allIsClick ? this.bodyData : [])
       },
       getChooseBox(ids){
-          let _arr = this.bodyData.filter(ele => ele.isClick)
+          let _arr = this.bodyData.filter(ele => ele.isChoosed)
           this.allIsClick = _arr.length == this.bodyData.length
           this.$emit("getChooseBox",_arr)
       },

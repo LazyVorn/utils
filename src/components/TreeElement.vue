@@ -7,7 +7,7 @@
 <template>
     <div class="tree_element_wrap">
         <div class="tree_element_table" v-for="info in treeData" :key="info.id" :class="!info.isShow ? 'hide' : ''">
-            <div class="tree_table_title" @click.stop="liClick(info,$event)" :class="[info.liClicked ? 'active' : '',`layer${treeLayer}`]">
+            <div class="tree_table_title" @click.stop="liClick(info,$event)" :class="[info.isClicked ? 'active' : '',`layer${treeLayer}`]">
                 <template v-for="(ele,index) in order">
                     <span v-if="ele == 'name'" class="ele_td hasArrow" :style="{paddingLeft:left + 'px',width:width[index] + 'px'}" :title="info[order[index]]">
                         <i class="arrow iconfont" v-if="(info.childNode && info.childNode.length != 0) || info[pIdName] ==''" 
@@ -16,7 +16,7 @@
                     </span>
                     <span v-else-if="ele == 'checkbox'" class="ele_td" :style="{width:width[index] + 'px'}" :title="info[order[index]]">
                         <i class="arrow iconfont" 
-                         @click.stop="checkboxFunc(info)">{{!info.isClick ? "&#xe63c" : "&#xe637"}}</i>
+                         @click.stop="checkboxFunc(info)">{{!info.isChoosed ? "&#xe63c" : "&#xe637"}}</i>
                     </span>
                     <span v-else class="ele_td" :title="info[order[index]]" :style="{width:width[index] + 'px'}">{{info[order[index]]}}</span>
                 </template>
@@ -83,30 +83,13 @@ export default {
     arrowClick(e) {
       this.$set(e, "isShow", !e.isShow);
     },
-    //获取选中的部位id
-    getChoosedId(e) {
-      this.treeData.forEach(ele => {
-        if (ele.childNode) {
-          this.findChild(ele.childNode);
-        }
-      });
-      this.$emit("getChooseBox", []);
-    },
-    //遍历child
-    findChild(arr) {
-      arr.forEach(ele => {
-        if (ele.childNode) {
-          this.findChild(ele.childNode);
-        }
-      });
-    },
     //点击勾选框
     checkboxFunc(e) {
-      this.$set(e, "isClick", !e.isClick);
+      this.$set(e, "isChoosed", !e.isChoosed);
       !e.childNode
         ? ""
         : e.childNode.forEach(ele => {
-            this.$set(ele, "isClick", e.isClick);
+            this.$set(ele, "isChoosed", e.isChoosed);
             !ele.childNode ? "" : this.checkboxChildFunc(ele)
           });
       this.$forceUpdate()
@@ -115,7 +98,7 @@ export default {
     // //点击勾选框-找子集
     checkboxChildFunc(e) {
       e.childNode.forEach(ele => {
-            this.$set(ele, "isClick", e.isClick);
+            this.$set(ele, "isChoosed", e.isChoosed);
             !ele.childNode ? "" : this.checkboxChildFunc(ele)
           });
     },
@@ -123,17 +106,17 @@ export default {
     getChooseBox(pid) {
       let _num = 0,
         _obj = this.treeData.filter(ele => ele.id == pid)[0]
-      _obj.childNode.forEach(ele => {
-        ele.isClick == true ? (_num += 1) : "";
+      !_obj ? "" : _obj.childNode.forEach(ele => {
+        ele.isChoosed == true ? (_num += 1) : "";
       });
       if (_num == _obj.childNode.length) {
-        _obj.isClick = true;
-      } else if (_obj.isClick) {
-        _obj.isClick = false;
+        _obj.isChoosed = true;
+      } else if (_obj.isChoosed) {
+        _obj.isChoosed = false;
       }
       this.$forceUpdate()
       if (!_obj[this.pIdName] || _obj[this.pIdName] == "") {
-        this.getChoosedId(this.treeData);
+        this.$emit("getChooseBox",null);
       } else {
         this.$emit("getChooseBox",_obj[this.pIdName]);
       }
