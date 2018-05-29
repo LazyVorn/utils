@@ -8,12 +8,17 @@
     <div class="tree_wrap">
         <div class="head_wrap" :style="{right:scrollWidth + 'px'}">
             <div class="table_wrap" :style="{width:computedWidth + 'px'}">
-                <span class="head_th" v-for="(ele,index) in headData" :style="{width:width[index]+'px'}" :key="ele.value">{{ele.name}}</span>
+                <template v-for="(ele,index) in headData">
+                <span class="head_th checkbox" v-if="ele.value == 'checkbox'" :style="{width:width[index]+'px'}">
+                    <i class="check_box iconfont" @click.stop="checkboxFunc(ele)">{{!allIsClick ? "&#xe63c" : "&#xe637"}}</i>
+                </span>
+                <span class="head_th" v-else :style="{width:width[index]+'px'}">{{ele.name}}</span>
+                </template>
             </div>
         </div>
         <div class="body_wrap" v-if="treeData.length > 0" @scroll="scrollFunc">
             <div class="table_wrap" :style="{width:computedWidth + 'px'}">
-                <TreeElement :treeData = "treeData" :order="order" :treeLayer = "0" :tableWidth="tableWidth" :headData="headData"></TreeElement>
+                <TreeElement :treeData = "treeData" :order="order" :pIdName="pIdName" :treeLayer = "0" @getLiClick="getLiClick" @getChooseBox="getChooseBox" :tableWidth="tableWidth" :headData="headData"></TreeElement>
             </div>
         </div>
         <span class="tips" v-else>暂无数据</span>
@@ -58,6 +63,8 @@ export default {
       isClickedId:"",
       tableWidth:0,
       scrollWidth: 20, //滚动条宽度
+      allIsClick:false,
+      detailTimes:0
     };
   },
   methods: {
@@ -67,12 +74,23 @@ export default {
       scrollFunc(){
           this.$el.querySelectorAll(".head_wrap")[0].scrollLeft = this.$el.querySelectorAll(".body_wrap")[0].scrollLeft
       },
-    getisClicked(id){
-        this.isClickedId = id
+      checkboxFunc(){
+          this.allIsClick = !this.allIsClick
+          this.bodyData.forEach(ele => this.$set(ele,"isClick",this.allIsClick))
+          this.$emit("getChooseBox",this.allIsClick ? this.bodyData : [])
+      },
+      getChooseBox(ids){
+          let _arr = this.bodyData.filter(ele => ele.isClick)
+          this.allIsClick = _arr.length == this.bodyData.length
+          this.$emit("getChooseBox",_arr)
+      },
+    getLiClick(info){
+        this.isClickedId = info.id
         this.treeData.forEach((ele) => {
-            ele.isClicked = ele.id == id ? true : false
-            !ele.childNode ? "" : this.findChildisClicked(ele.childNode,id)
+            ele.isClicked = ele.id == info.id ? true : false
+            !ele.childNode ? "" : this.findChildisClicked(ele.childNode,info.id)
         })
+        this.$emit("getClicked",info)
     },
     findChildisClicked(child,id){
         child.forEach((_ele) => {
@@ -85,13 +103,14 @@ export default {
         var newArr = [],
             _pid = this.pIdName;
         arr.forEach((ele, index) => {
-            this.$set(ele,"isShow",this.allShow ? true : false)
+            this.detailTimes != 0 ? "" : this.$set(ele,"isShow",this.allShow ? true : false)
             this.$set(ele,"isClicked",this.isClicked == ele.id ? true : false)
             if (ele[_pid] == null || ele[_pid] == "") {
                 this.$set(ele, "childNode", this.checkChildNode(ele.id, arr));
                 newArr.push(ele)
             }
         }, this)
+        this.detailTimes ++
         return newArr
     },
     //找出一个id下的所有子节点的方法 ，用于在递归遍历中
@@ -194,6 +213,14 @@ export default {
     overflow: auto;
     border: 1px solid #ddd;
       background-color: #eee;
+      .iconfont{
+          -webkit-touch-callout: none;
+          -webkit-user-select: none;
+          -khtml-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+      }
   .head_wrap {
         position: absolute;
         box-sizing: border-box;
@@ -215,6 +242,10 @@ export default {
       background-color: #eee;
       &:first-child {
         border-left: none;
+      }
+      &.checkbox{
+          font-weight: 100;
+          cursor: pointer;
       }
     }
   }

@@ -9,16 +9,20 @@
         <div class="tree_element_table" v-for="info in treeData" :key="info.id" :class="!info.isShow ? 'hide' : ''">
             <div class="tree_table_title" @click.stop="liClick(info,$event)" :class="[info.liClicked ? 'active' : '',`layer${treeLayer}`]">
                 <template v-for="(ele,index) in order">
-                    <span v-if="index == 0" class="ele_td" :style="{paddingLeft:left + 'px',width:width[index] + 'px'}" :title="info[order[index]]">
-                        <i class="arrow iconfont" v-if="(info.childNode && info.childNode.length != 0) || info.pid ==''" 
+                    <span v-if="ele == 'name'" class="ele_td hasArrow" :style="{paddingLeft:left + 'px',width:width[index] + 'px'}" :title="info[order[index]]">
+                        <i class="arrow iconfont" v-if="(info.childNode && info.childNode.length != 0) || info[pIdName] ==''" 
                         @click.stop="arrowClick(info)">{{!info.isShow ? "&#xe7fc;" : "&#xe7fb"}}</i>
                         {{info[order[index]]}}
+                    </span>
+                    <span v-else-if="ele == 'checkbox'" class="ele_td" :style="{width:width[index] + 'px'}" :title="info[order[index]]">
+                        <i class="arrow iconfont" 
+                         @click.stop="checkboxFunc(info)">{{!info.isClick ? "&#xe63c" : "&#xe637"}}</i>
                     </span>
                     <span v-else class="ele_td" :title="info[order[index]]" :style="{width:width[index] + 'px'}">{{info[order[index]]}}</span>
                 </template>
             </div>
             <div class="tree_table_box">
-                <TreeElement v-if="info.childNode" :treeData="info.childNode" :treeLayer = "treeLayer + 1" @getLiClick="getLiClick" :left="parseInt(left)+25" :order="order" :tableWidth="tableWidth" :headData="headData" @checkBox="checkBox"></TreeElement>
+                <TreeElement v-if="info.childNode" :treeData="info.childNode" :pIdName="pIdName" :treeLayer = "treeLayer + 1" @getLiClick="getLiClick" :left="parseInt(left)+25" :order="order" :tableWidth="tableWidth" :headData="headData" @getChooseBox="getChooseBox"></TreeElement>
             </div>
         </div>
     </div>
@@ -37,6 +41,10 @@ export default {
       type: Number,
       default: 0
     },
+      pIdName:{
+          type:String,
+          default:'pId'
+      },
     treeData: {
       type: Array,
       default: function() {
@@ -62,16 +70,15 @@ export default {
   },
   data() {
     return {
-      choose: {},
       treeWidth:0
     };
   },
   methods: {
     liClick(ele, event) {
-      this.$emit("getLiClick", ele.id);
+      this.$emit("getLiClick", ele);
     },
-    getLiClick(id) {
-      this.$emit("getLiClick", id);
+    getLiClick(info) {
+      this.$emit("getLiClick", info);
     },
     arrowClick(e) {
       this.$set(e, "isShow", !e.isShow);
@@ -83,7 +90,7 @@ export default {
           this.findChild(ele.childNode);
         }
       });
-      this.$emit("checkBox", this.choose);
+      this.$emit("getChooseBox", []);
     },
     //遍历child
     findChild(arr) {
@@ -100,12 +107,20 @@ export default {
         ? ""
         : e.childNode.forEach(ele => {
             this.$set(ele, "isClick", e.isClick);
+            !ele.childNode ? "" : this.checkboxChildFunc(ele)
           });
       this.$forceUpdate()
-      this.$emit("checkBox",e.pid);
+      this.$emit("getChooseBox",e[this.pIdName]);
+    },
+    // //点击勾选框-找子集
+    checkboxChildFunc(e) {
+      e.childNode.forEach(ele => {
+            this.$set(ele, "isClick", e.isClick);
+            !ele.childNode ? "" : this.checkboxChildFunc(ele)
+          });
     },
     //准备向上传递用的id
-    checkBox(pid) {
+    getChooseBox(pid) {
       let _num = 0,
         _obj = this.treeData.filter(ele => ele.id == pid)[0]
       _obj.childNode.forEach(ele => {
@@ -117,10 +132,10 @@ export default {
         _obj.isClick = false;
       }
       this.$forceUpdate()
-      if (!_obj.pid || _obj.pid == "") {
+      if (!_obj[this.pIdName] || _obj[this.pIdName] == "") {
         this.getChoosedId(this.treeData);
       } else {
-        this.$emit("checkBox",_obj.pid);
+        this.$emit("getChooseBox",_obj[this.pIdName]);
       }
     }
   },
@@ -178,8 +193,10 @@ export default {
         white-space: nowrap;
         overflow: hidden;
         transition: 0.2s;
-        &:first-child {
+        &:first-child{
             border-left: none;
+        }
+        &.hasArrow {
           text-align: left;
         }
         & > em {
