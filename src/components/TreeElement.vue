@@ -16,7 +16,7 @@
                     </span>
                     <span v-else-if="ele == 'checkbox'" class="ele_td" :style="{width:width[index] + 'px'}" :title="info[order[index]]">
                         <i class="arrow iconfont" 
-                         @click.stop="checkboxFunc(info)">{{!info.isChoosed ? "&#xe63c" : "&#xe637"}}</i>
+                         @click.stop="checkboxFunc(info)" v-html="dealIcon(info)"></i>
                     </span>
                     <span v-else class="ele_td" :title="info[order[index]]" :style="{width:width[index] + 'px'}">{{info[order[index]]}}</span>
                 </template>
@@ -74,6 +74,15 @@ export default {
     };
   },
   methods: {
+      dealIcon(info){
+          if(info.isChoosed){
+              return "&#xe637"
+          } else if(info.halfChoosed){
+              return "&#xe63b;"
+          } else {
+              return "&#xe63c"
+          }
+      },
     liClick(ele, event) {
       this.$emit("getLiClick", ele);
     },
@@ -86,10 +95,12 @@ export default {
     //点击勾选框
     checkboxFunc(e) {
       this.$set(e, "isChoosed", !e.isChoosed);
+    this.$set(e, "halfChoosed", e.isChoosed);
       !e.childNode
         ? ""
         : e.childNode.forEach(ele => {
             this.$set(ele, "isChoosed", e.isChoosed);
+            this.$set(ele, "halfChoosed", e.isChoosed);
             !ele.childNode ? "" : this.checkboxChildFunc(ele)
           });
       this.$forceUpdate()
@@ -99,21 +110,25 @@ export default {
     checkboxChildFunc(e) {
       e.childNode.forEach(ele => {
             this.$set(ele, "isChoosed", e.isChoosed);
+            this.$set(ele, "halfChoosed", e.isChoosed);
             !ele.childNode ? "" : this.checkboxChildFunc(ele)
           });
     },
     //准备向上传递用的id
     getChooseBox(pid) {
       let _num = 0,
+            _half = 0,
         _obj = this.treeData.filter(ele => ele.id == pid)[0]
       !_obj ? "" : _obj.childNode.forEach(ele => {
         ele.isChoosed == true ? (_num += 1) : "";
+        ele.halfChoosed == true ? (_half += 1) : "";
       });
       if (_num == _obj.childNode.length) {
         _obj.isChoosed = true;
       } else if (_obj.isChoosed) {
         _obj.isChoosed = false;
       }
+    _obj.halfChoosed = _num > 0 || _half > 0;
       this.$forceUpdate()
       if (!_obj[this.pIdName] || _obj[this.pIdName] == "") {
         this.$emit("getChooseBox",null);

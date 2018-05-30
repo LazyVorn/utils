@@ -75,7 +75,10 @@ export default {
       },
       checkboxFunc(){
           this.allIsClick = !this.allIsClick
-          this.bodyData.forEach(ele => this.$set(ele,"isChoosed",this.allIsClick))
+          this.bodyData.forEach(ele => {
+              this.$set(ele,"isChoosed",this.allIsClick)
+              this.$set(ele,"halfChoosed",this.allIsClick)
+          })
           this.$emit("getChooseBox",this.allIsClick ? this.bodyData : [])
       },
       getChooseBox(ids){
@@ -105,6 +108,7 @@ export default {
             this.detailTimes != 0 ? "" : this.$set(ele,"isShow",this.allShow ? true : false)
             this.$set(ele,"isClicked",this.isClicked == ele.id ? true : false)
             if (ele[_pid] == null || ele[_pid] == "") {
+                this.detailTimes != 0 ? "" : this.$set(ele,"halfChoosed",false)
                 this.$set(ele, "childNode", this.checkChildNode(ele.id, arr));
                 newArr.push(ele)
             }
