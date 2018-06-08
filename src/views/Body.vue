@@ -3,11 +3,12 @@
         <router-link to="/6068355004487797345/about">sadfasdf</router-link>
         <h1>This is an body page</h1>
         <paste></paste>
+        <button @click="moving = true">点击出框</button>
         <div style="width:1500px;height:500px;margin-left:100px;">
         <TreeTable :headData="head" :bodyData="data" :allShow="true" pIdName="pid" @getClicked="getClicked" @getChooseBox="getChooseBox"></TreeTable>
         </div>
         <div style="margin-left:900px;"><lv-select :data="selectData" multiple filterable></lv-select></div>
-        <!-- <moving-modal></moving-modal> -->
+        <moving-modal v-if="moving" title="介是个标题" @close="moving = false"></moving-modal>
         <div style="position:absolute;left:0;top:0">
         <!-- <spe-nav></spe-nav> -->
         </div>
@@ -31,6 +32,7 @@ export default {
   },
   data () {
       return {
+          moving:false,
           selectData:[{"id":"6298842148508439286","name":"张浩","pinyinName":"zhanghao","pinyinCode":"2608011407080115","parentId":null,"type":"member","order":null,"tag":null,"children":[]},{"id":"6286777766680400383","name":"刘长城","pinyinName":"liuchangcheng","pinyinCode":"12092103080114070308051407","parentId":null,"type":"member","order":null,"tag":null,"children":[]},{"id":"6338974343083102574","name":"武星","pinyinName":"wuxing","pinyinCode":"232124091407","parentId":null,"type":"member","order":null,"tag":null,"children":[]},{"id":"6346542892740346042","name":"彭辉","pinyinName":"penghui","pinyinCode":"16051407082109","parentId":null,"type":"member","order":null,"tag":null,"children":[]},{"id":"5917242334161117925","name":"张波","pinyinName":"zhangbo","pinyinCode":"26080114070215","parentId":null,"type":"member","order":null,"tag":null,"children":[]}],
           head:[
               {name:"",value:"checkbox"},
