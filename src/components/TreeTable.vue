@@ -17,7 +17,7 @@
             </div>
         </div>
         <div class="lv_body_wrap" @scroll="scrollFunc">
-            <div class="lv_table_wrap" :style="{width:computedWidth + 'px'}" v-if="data.length > 0">
+            <div class="lv_table_wrap" :style="computedWidth > tableWidth ? {width:computedWidth + 'px'} : {}" v-if="data.length > 0">
                 <TreeElement :treeData="treeData" :order="order" :pIdName="pIdName" :treeLayer="0" :width="width" @getLiClick="getLiClick" @getChooseBox="getChooseBox" :headData="headData"></TreeElement>
             </div>
             <span class="lv_tips" v-else>暂无数据</span>
