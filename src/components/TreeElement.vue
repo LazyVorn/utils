@@ -77,6 +77,11 @@ export default {
   data() {
     return {};
   },
+  mounted(){
+      if(this.treeLayer == 0){
+          this.$emit("finishLoading",true)
+      }
+    },
   methods: {
       //判断全选,半选,没选
     dealIcon(info) {

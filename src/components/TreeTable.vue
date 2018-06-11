@@ -18,9 +18,14 @@
         </div>
         <div class="lv_body_wrap" @scroll="scrollFunc">
             <div class="lv_table_wrap" :style="computedWidth > tableWidth ? {width:computedWidth + 'px'} : {}" v-if="data.length > 0">
-                <TreeElement :treeData="treeData" :order="order" :pIdName="pIdName" :treeLayer="0" :width="width" @getLiClick="getLiClick" @getChooseBox="getChooseBox" :headData="headData"></TreeElement>
+                <TreeElement :treeData="treeData" :order="order" :pIdName="pIdName" :treeLayer="0" :width="width" @getLiClick="getLiClick" @getChooseBox="getChooseBox" @finishLoading="loading = false" :headData="headData"></TreeElement>
             </div>
             <span class="lv_tips" v-else>暂无数据</span>
+            <transition name="fade">
+                <div class="lv_tt_layer" v-if="loading">
+                    <p>数据加载中......</p>
+                </div>
+            </transition>
         </div>
     </div>
 </template>
@@ -68,7 +73,8 @@ export default {
       tableWidth: 0, //表格宽度,用来计算单元格宽度
       scrollWidth: 20, //滚动条宽度
       allIsClick: false, //是否全部选中
-      detailTimes: 0 //判断是否第一次递归数据,以防数据变动导致allIsClick触发
+      detailTimes: 0, //判断是否第一次递归数据,以防数据变动导致allIsClick触发
+      loading: false
     };
   },
   methods: {
@@ -241,6 +247,7 @@ export default {
     }
   },
   mounted() {
+    this.loading = true;
     this.resize();
     window.addEventListener("resize", this.resize, false);
     this.data = JSON.parse(JSON.stringify(this.bodyData));
@@ -250,6 +257,12 @@ export default {
 </script>
 
 <style>
+.fade-leave-active {
+  transition: opacity 1s;
+}
+.fade-leave-to {
+  opacity: 0;
+}
 .lv_tree_wrap {
   box-sizing: border-box;
   position: relative;
@@ -296,6 +309,24 @@ export default {
   box-sizing: border-box;
   width: 100%;
   overflow: hidden;
+}
+.lv_tree_wrap .lv_tt_layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  z-index: 3;
+  cursor: default;
+}
+.lv_tree_wrap .lv_tt_layer > p {
+  position: absolute;
+  top: 40%;
+  width: 100%;
+  color: #2d8cf0;
+  text-align: center;
+  cursor: default;
 }
 .lv_tree_wrap .lv_tips {
   position: absolute;
