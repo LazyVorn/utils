@@ -6,7 +6,7 @@
  */
 <template>
     <div class="lv_tree_element_wrap">
-        <div class="lv_tree_element_table" v-for="info in treeData" :key="info.id" :class="!info.isShow ? 'lv_hide' : ''">
+        <div class="lv_tree_element_table" v-for="info in treeData" :key="info.id">
             <div class="lv_tree_table_title" @click.stop="liClick(info,$event)" :class="[info.isClicked ? 'active' : '',`layer${treeLayer}`]">
                 <template v-for="(ele,index) in order">
                     <span v-if="ele == 'name'" class="lv_ele_td lv_hasArrow" :style="{paddingLeft:left + 'px',width:width[index] + 'px'}" :title="info[order[index]]">
@@ -19,7 +19,7 @@
                     <span v-else class="lv_ele_td" :title="info[order[index]]" :style="{width:width[index] + 'px'}">{{info[order[index]]}}</span>
                 </template>
             </div>
-            <div class="lv_tree_table_box">
+            <div class="lv_tree_table_box" v-show="info.isShow">
                 <TreeElement v-if="info.childNode" :treeData="info.childNode" :pIdName="pIdName" :width="width" :treeLayer="treeLayer + 1" @getLiClick="getLiClick" :left="parseInt(left)+25" :order="order" :headData="headData" @getChooseBox="getChooseBox"></TreeElement>
             </div>
         </div>
@@ -79,6 +79,7 @@ export default {
   },
   mounted(){
       if(this.treeLayer == 0){
+        console.log(Date.now());
           this.$emit("finishLoading",true)
       }
     },

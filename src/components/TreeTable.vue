@@ -126,29 +126,39 @@ export default {
     },
     //数据重建方法
     reBuildData(arr, type) {
-      var newArr = [],
-        _pid = this.pIdName;
-      arr.forEach((ele, index) => {
-        this.detailTimes != 0
-          ? ""
-          : this.$set(ele, "isShow", this.allShow ? true : false);
-        this.$set(ele, "isClicked", this.isClicked == ele.id ? true : false);
-        if (ele[_pid] == null || ele[_pid] == "") {
-          this.detailTimes != 0 ? "" : this.$set(ele, "halfChoosed", false);
-          this.$set(ele, "childNode", this.checkChildNode(ele.id, arr));
-          newArr.push(ele);
+        console.log(Date.now());
+        var newArr = [],
+            showToggle = this.allShow,
+            _pid = this.pIdName;
+        if(this.detailTimes != 0){
+            arr.forEach((ele, index) => {
+                this.$set(ele, "isClicked", this.isClicked == ele.id ? true : false);
+                if (ele[_pid] == null || ele[_pid] == "") {
+                    this.$set(ele, "childNode", this.checkChildNode(ele.id, arr,_pid));
+                    newArr.push(ele);
+                }
+            }, this);
+        } else {
+            arr.forEach((ele, index) => {
+                this.$set(ele, "isShow", showToggle);
+                this.$set(ele, "isClicked", false);
+                if (ele[_pid] == null || ele[_pid] == "") {
+                    this.$set(ele, "halfChoosed", false);
+                    this.$set(ele, "childNode", this.checkChildNode(ele.id, arr,_pid));
+                    newArr.push(ele);
+                }
+            }, this);
         }
-      }, this);
       this.detailTimes++;
+        console.log(Date.now());
       return newArr;
     },
     //找出一个id下的所有子节点的方法 ，用于在递归遍历中
-    checkChildNode(cId, arr) {
-      let currentArr = [],
-        _pid = this.pIdName;
+    checkChildNode(cId, arr,_pid) {
+      let currentArr = [];
       arr.forEach(function(element, index) {
         if (element[_pid] == cId) {
-          this.$set(element, "childNode", this.checkChildNode(element.id, arr));
+          this.$set(element, "childNode", this.checkChildNode(element.id, arr,_pid));
           element.childNode.length == 0 ? (element.childNode = null) : "";
           currentArr.push(element);
         }
@@ -244,10 +254,10 @@ export default {
     //深拷贝,以免递归时添加的字段影响到父组件的数据
     bodyData(newVal, oldVal) {
       this.data = JSON.parse(JSON.stringify(newVal));
+      this.data.length > 0 ? this.loading = true : "";
     }
   },
   mounted() {
-    this.loading = true;
     this.resize();
     window.addEventListener("resize", this.resize, false);
     this.data = JSON.parse(JSON.stringify(this.bodyData));
