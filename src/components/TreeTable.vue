@@ -69,6 +69,7 @@ export default {
   data() {
     return {
       data: [], //实际用到的表格内容数据,是bodyData的深拷贝
+      treeData: [],
       isClickedId: "", //高亮行的id
       tableWidth: 0, //表格宽度,用来计算单元格宽度
       scrollWidth: 20, //滚动条宽度
@@ -126,40 +127,63 @@ export default {
     },
     //数据重建方法
     reBuildData(arr, type) {
-        console.log(Date.now());
-        var newArr = [],
-            showToggle = this.allShow,
-            _pid = this.pIdName;
-        if(this.detailTimes != 0){
-            arr.forEach((ele, index) => {
-                this.$set(ele, "isClicked", this.isClicked == ele.id ? true : false);
-                if (ele[_pid] == null || ele[_pid] == "") {
-                    this.$set(ele, "childNode", this.checkChildNode(ele.id, arr,_pid));
-                    newArr.push(ele);
-                }
-            }, this);
+      console.time();
+      var newArr = [],
+        showToggle = this.allShow,
+        _pid = this.pIdName,
+        _arr = [],
+        _pArr = [];
+      arr.forEach(ele => {
+        if (ele[_pid] == null || ele[_pid] == "") {
+          _pArr.push(ele);
         } else {
-            arr.forEach((ele, index) => {
-                this.$set(ele, "isShow", showToggle);
-                this.$set(ele, "isClicked", false);
-                if (ele[_pid] == null || ele[_pid] == "") {
-                    this.$set(ele, "halfChoosed", false);
-                    this.$set(ele, "childNode", this.checkChildNode(ele.id, arr,_pid));
-                    newArr.push(ele);
-                }
-            }, this);
+          let _mark = 0;
+          for (let i = 0; i < arr.length; i++) {
+            if (arr[i][_pid] == ele.id) {
+              _mark++;
+              break;
+            }
+          }
+          ele.isLastElement = _mark == 0;
+          _arr.push(ele);
         }
+      });
+      console.timeEnd();
+      console.time();
+      if (this.detailTimes != 0) {
+        _pArr.forEach((ele, index) => {
+          this.$set(ele, "isClicked", this.isClicked == ele.id ? true : false);
+          this.$set(ele, "childNode", this.checkChildNode(ele.id, _arr, _pid));
+          newArr.push(ele);
+        }, this);
+      } else {
+        _pArr.forEach((ele, index) => {
+          this.$set(ele, "isShow", showToggle);
+          this.$set(ele, "isClicked", false);
+          this.$set(ele, "halfChoosed", false);
+          this.$set(ele, "childNode", this.checkChildNode(ele.id, _arr, _pid));
+          newArr.push(ele);
+        }, this);
+      }
       this.detailTimes++;
-        console.log(Date.now());
+      console.timeEnd();
       return newArr;
     },
     //找出一个id下的所有子节点的方法 ，用于在递归遍历中
-    checkChildNode(cId, arr,_pid) {
+    checkChildNode(cId, _arr, _pid) {
       let currentArr = [];
-      arr.forEach(function(element, index) {
+      _arr.forEach(function(element, index) {
         if (element[_pid] == cId) {
-          this.$set(element, "childNode", this.checkChildNode(element.id, arr,_pid));
-          element.childNode.length == 0 ? (element.childNode = null) : "";
+          element.isLastElement
+            ? ""
+            : this.$set(
+                element,
+                "childNode",
+                this.checkChildNode(element.id, _arr, _pid)
+              );
+          element.isLastElement || element.childNode.length == 0
+            ? (element.childNode = null)
+            : "";
           currentArr.push(element);
         }
       }, this);
@@ -243,24 +267,21 @@ export default {
     //用head做的body映射
     order() {
       return this.headData.map(ele => ele.value);
-    },
-    //传给treeElment组件的实际数据
-    treeData() {
-      let _arr = this.data;
-      return this.reBuildData(_arr);
     }
   },
   watch: {
     //深拷贝,以免递归时添加的字段影响到父组件的数据
     bodyData(newVal, oldVal) {
       this.data = JSON.parse(JSON.stringify(newVal));
-      this.data.length > 0 ? this.loading = true : "";
+      this.treeData = this.reBuildData(this.data);
+      this.data.length > 0 ? (this.loading = true) : "";
     }
   },
   mounted() {
     this.resize();
     window.addEventListener("resize", this.resize, false);
     this.data = JSON.parse(JSON.stringify(this.bodyData));
+    this.treeData = this.reBuildData(this.data);
     this.scrollWidth = this.getScrollBarSize();
   }
 };

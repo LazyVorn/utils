@@ -10,7 +10,7 @@
             <div class="lv_tree_table_title" @click.stop="liClick(info,$event)" :class="[info.isClicked ? 'active' : '',`layer${treeLayer}`]">
                 <template v-for="(ele,index) in order">
                     <span v-if="ele == 'name'" class="lv_ele_td lv_hasArrow" :style="{paddingLeft:left + 'px',width:width[index] + 'px'}" :title="info[order[index]]">
-                        <i class="lv_icon" v-if="(info.childNode && info.childNode.length != 0) || info[pIdName] ==''" :class="info.isShow ? 'lv_icon_show' : 'lv_icon_hide'" @click.stop="arrowClick(info)"></i>
+                        <i class="lv_icon" v-if="(info.childNode) || info[pIdName] ==''" :class="info.isShow ? 'lv_icon_show' : 'lv_icon_hide'" @click.stop="arrowClick(info)"></i>
                         {{info[order[index]]}}
                     </span>
                     <span v-else-if="ele == 'checkbox'" class="lv_ele_td" :style="{width:width[index] + 'px'}" :title="info[order[index]]">
@@ -77,12 +77,6 @@ export default {
   data() {
     return {};
   },
-  mounted(){
-      if(this.treeLayer == 0){
-        console.log(Date.now());
-          this.$emit("finishLoading",true)
-      }
-    },
   methods: {
       //判断全选,半选,没选
     dealIcon(info) {
@@ -153,6 +147,17 @@ export default {
       }
     }
   },
+  mounted(){
+      if(this.treeLayer == 0){
+        console.log(Date.now());
+          this.$emit("finishLoading",true)
+      }
+    },
+    watch:{
+        treeData(){
+            this.treeLayer == 0 ? this.$emit("finishLoading",true) : ""
+        }
+    },
 };
 </script>
 
