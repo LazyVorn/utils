@@ -20,7 +20,7 @@
                 </template>
             </div>
             <div class="lv_tree_table_box" v-show="info.isShow">
-                <TreeElement v-if="info.childNode" :treeData="info.childNode" :pIdName="pIdName" :width="width" :treeLayer="treeLayer + 1" @getLiClick="getLiClick" :left="parseInt(left)+25" :order="order" :headData="headData" @getChooseBox="getChooseBox"></TreeElement>
+                <TreeElement v-if="info.childNode" :treeData="info.childNode" :pIdName="pIdName" :width="width" :treeLayer="treeLayer + 1" @getArrowClick="getArrowClick" @getLiClick="getLiClick" :left="parseInt(left)+25" :order="order" :headData="headData" @getChooseBox="getChooseBox"></TreeElement>
             </div>
         </div>
     </div>
@@ -99,6 +99,10 @@ export default {
     //收缩事件
     arrowClick(e) {
       this.$set(e, "isShow", !e.isShow);
+      e.isShow && e.childNode.length > 0 ? "" : this.$emit("getArrowClick",e)
+    },
+    getArrowClick(e){
+        this.$emit("getArrowClick",e)
     },
     //点击勾选框
     checkboxFunc(e) {

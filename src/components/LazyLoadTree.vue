@@ -18,7 +18,7 @@
         </div>
         <div class="lv_body_wrap" @scroll="scrollFunc">
             <div class="lv_table_wrap" :style="computedWidth > tableWidth ? {width:computedWidth + 'px'} : {}" v-if="data.length > 0">
-                <TreeElement :treeData="treeData" :order="order" :pIdName="pIdName" :treeLayer="0" :width="width" @getLiClick="getLiClick" @getChooseBox="getChooseBox" @finishLoading="loading = false" :headData="headData"></TreeElement>
+                <TreeElement :treeData="treeData" :order="order" :pIdName="pIdName" :treeLayer="0" :width="width" @getArrowClick="getArrowClick" @getLiClick="getLiClick" @getChooseBox="getChooseBox" @finishLoading="loading = false" :headData="headData"></TreeElement>
             </div>
             <span class="lv_tips" v-else>暂无数据</span>
             <transition name="fade">
@@ -33,16 +33,11 @@
 <script>
 import TreeElement from "./TreeElement";
 export default {
-  name: "TreeTable",
+  name: "LazyLoadTree",
   components: {
     TreeElement
   },
   props: {
-    //初始时是否全部展开
-    allShow: {
-      type: Boolean,
-      default: true
-    },
     //pid字段名,默认为pId,取决接口返回的JSON数据
     pIdName: {
       type: String,
@@ -61,7 +56,17 @@ export default {
       default: function() {
         return [];
       }
-    }
+    },
+    url: {
+      type: String,
+      default: ""
+    },
+    params: {
+      type: Object,
+      default: function() {
+        return {};
+      }
+    },
   },
   components: {
     TreeElement
@@ -75,7 +80,8 @@ export default {
       scrollWidth: 20, //滚动条宽度
       allIsClick: false, //是否全部选中
       detailTimes: 0, //判断是否第一次递归数据,以防数据变动导致allIsClick触发
-      loading: false
+      loading: false,
+      backupData:[]
     };
   },
   methods: {
@@ -125,68 +131,33 @@ export default {
         !_ele.childNode ? "" : this.findChildisClicked(_ele.childNode, id);
       });
     },
-    //数据重建方法
-    reBuildData(arr, type) {
-      console.time();
-      var newArr = [],
-        showToggle = this.allShow,
-        _pid = this.pIdName,
-        _arr = [],
-        _pArr = [];
-      arr.forEach(ele => {
-        this.$set(ele, "isShow", showToggle);
+    dealRootData(arr){
+        let _arr = [];
+        arr.forEach(ele => {
+        this.$set(ele, "isShow", false);
+        this.$set(ele, "halfChoosed", false);
+        this.$set(ele, "childNode", []);
         this.$set(ele, "isClicked", this.isClicked == ele.id ? true : false);
-        if (ele[_pid] == null || ele[_pid] == "") {
-          _pArr.push(ele);
-        } else {
-          let _mark = 0;
-          for (let i = 0; i < arr.length; i++) {
-            if (arr[i][_pid] == ele.id) {
-              _mark++;
-              break;
-            }
-          }
-          ele.isLastElement = _mark == 0;
-          _arr.push(ele);
-        }
+        _arr.push(ele);
       });
-      console.timeEnd();
-      console.time();
-      if (this.detailTimes != 0) {
-        _pArr.forEach((ele, index) => {
-          this.$set(ele, "childNode", this.checkChildNode(ele.id, _arr, _pid));
-          newArr.push(ele);
-        }, this);
-      } else {
-        _pArr.forEach((ele, index) => {
-          this.$set(ele, "halfChoosed", false);
-          this.$set(ele, "childNode", this.checkChildNode(ele.id, _arr, _pid));
-          newArr.push(ele);
-        }, this);
-      }
-      this.detailTimes++;
-      console.timeEnd();
-      return newArr;
+      this.backupData = [..._arr]
+      return _arr;
     },
-    //找出一个id下的所有子节点的方法 ，用于在递归遍历中
-    checkChildNode(cId, _arr, _pid) {
-      let currentArr = [];
-      _arr.forEach(function(element, index) {
-        if (element[_pid] == cId) {
-          element.isLastElement
-            ? ""
-            : this.$set(
-                element,
-                "childNode",
-                this.checkChildNode(element.id, _arr, _pid)
-              );
-          element.isLastElement || element.childNode.length == 0
-            ? (element.childNode = null)
-            : "";
-          currentArr.push(element);
-        }
-      }, this);
-      return currentArr;
+    dealChildData(url,params,parent){
+        this.$post(url,params).then(res => {
+            let _arr = res.data || [];
+            _arr.forEach(ele => {
+                ele.isLeaf ? "" : this.$set(ele, "isShow", false);
+                this.$set(ele, "halfChoosed", false);
+                this.$set(ele, "childNode", ele.isLeaf ? null : []);
+                this.$set(ele, "isClicked", this.isClicked == ele.id ? true : false);
+            });
+            this.backupData = [this.backupData,..._arr]
+            parent.childNode = [..._arr];
+        });
+    },
+    getArrowClick(element){
+        this.dealChildData(this.url,this.params,element);
     },
     //获取滚动条宽度
     getScrollBarSize() {
@@ -272,7 +243,7 @@ export default {
     //深拷贝,以免递归时添加的字段影响到父组件的数据
     bodyData(newVal, oldVal) {
       this.data = JSON.parse(JSON.stringify(newVal));
-      this.treeData = this.reBuildData(this.data);
+      this.treeData = this.dealRootData(this.data);
       this.data.length > 0 ? (this.loading = true) : "";
     }
   },
@@ -280,7 +251,7 @@ export default {
     this.resize();
     window.addEventListener("resize", this.resize, false);
     this.data = JSON.parse(JSON.stringify(this.bodyData));
-    this.treeData = this.reBuildData(this.data);
+    this.treeData = this.dealRootData(this.data);
     this.scrollWidth = this.getScrollBarSize();
   }
 };
