@@ -14,7 +14,7 @@ import VueAxios from 'vue-axios'
 import {tj} from '../src/utils/tj'
 import api from '../src/api/index'
 
-// axios.defaults.headers.common['Authorization'] = "Bearer 6a46dc3a-c90f-4496-b715-851c7dc53850";
+axios.defaults.headers.common['Authorization'] = "Bearer 4aa7929b-843a-49aa-aac1-85fa536afcee";
 axios.interceptors.request.use(  
     config => {  
         if(config.method=='post'){  

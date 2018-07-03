@@ -10,6 +10,8 @@ const apiVersion = "/v1"
 const api = {
     //埋点
     reqTJ: (projectId, code) => `${baseUrl}/v1/projects/${projectId}/tj/${code}`,
+    //埋点
+    getTreeData: (projectId,id) => `${baseUrl}/v1/projects/${projectId}/projectcraft/element/list?parentId=${id}`,
 };
 
 export function url(name, _store, params = {}) {

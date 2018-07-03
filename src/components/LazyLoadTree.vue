@@ -143,21 +143,21 @@ export default {
       this.backupData = [..._arr]
       return _arr;
     },
-    dealChildData(url,params,parent){
-        this.$post(url,params).then(res => {
-            let _arr = res.data || [];
+    dealChildData(url,id,parent){
+        this.$get(this.$api.getTreeData("15470987469763243477",id)).then(res => {
+            let _arr = res.data.data || [];
             _arr.forEach(ele => {
-                ele.isLeaf ? "" : this.$set(ele, "isShow", false);
+                ele.type == "构件" ? "" : this.$set(ele, "isShow", false);
                 this.$set(ele, "halfChoosed", false);
-                this.$set(ele, "childNode", ele.isLeaf ? null : []);
+                this.$set(ele, "childNode", ele.type == "构件" ? null : []);
                 this.$set(ele, "isClicked", this.isClicked == ele.id ? true : false);
             });
-            this.backupData = [this.backupData,..._arr]
+            this.backupData = [...this.backupData,..._arr]
             parent.childNode = [..._arr];
         });
     },
     getArrowClick(element){
-        this.dealChildData(this.url,this.params,element);
+        this.dealChildData(this.url,element.id,element);
     },
     //获取滚动条宽度
     getScrollBarSize() {

@@ -91,15 +91,16 @@ module.exports = {
       https: false,
       hotOnly: false,
       // 查阅 https://github.com/vuejs/vue-doc-zh-cn/vue-cli/cli-service.md#配置代理
-      proxy: {
-        "/api": {
-            // target: "http://10.129.27.53/index.php/apiManagementPro/Mock/simple/4BsHmNLac10eca951b0be0844ad9ea9dc4413ed495597b2?uri=",
-            target:"http://bim5d-pro-test.glodon.com",
-            //target: "http://localhost:8080",
-            // target: "http://bim5d-hunan.glodon.com/",
-            changeOrigin: true
-        }
-      }, // string | Object
+    //   proxy: {
+    //     "/api": {
+    //         // target: "http://10.129.27.53/index.php/apiManagementPro/Mock/simple/4BsHmNLac10eca951b0be0844ad9ea9dc4413ed495597b2?uri=",
+    //         // target:"http://bim5d-pro-test.glodon.com",
+    //         // target:"http://10.1.92.21:8080",
+    //         //target: "http://localhost:8080",
+    //         // target: "http://bim5d-hunan.glodon.com/",
+    //         changeOrigin: true
+    //     }
+    //   }, // string | Object
       before: app => {}
     },
   

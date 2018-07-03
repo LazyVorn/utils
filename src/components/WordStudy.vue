@@ -5,6 +5,7 @@
         </div>
         <ul class="word_list_wrap">
             <li v-for="(ele,index) in wordArr" :key="index">
+                <span>{{`${index + 1}. `}}</span>
                 <span class="word_span">{{ele.word}}</span>
                 <span>:</span>
                 <span class="name_span">{{ele.name}}</span>
@@ -166,6 +167,8 @@ export default {
     position: fixed;
     width: 100%;
     height: 100%;
+    top: 0;
+    left:0;
     background-color: rgba(0, 0, 0, 0.6);
     cursor: default;
     .word_export_wrap {
