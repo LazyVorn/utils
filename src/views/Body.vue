@@ -14,14 +14,16 @@
         <div style="position:absolute;left:0;top:0">
             <!-- <spe-nav></spe-nav> -->
         </div>
-        <mu-choose chooseDom=".demo_li" @getChoosedDom="getChoosedDom"></mu-choose>
+        <!-- <mu-choose chooseDom=".demo_li" @getChoosedDom="getChoosedDom"></mu-choose> -->
         <ul class="demo_ul">
             <li v-for="ele in ulData" :key="ele.id" :id="`demo-li${ele.id}`" class="demo_li" :class="ele.isChoose ? 'active' : ''">{{ele.name}}</li>
         </ul>
+        <assign-test></assign-test>
     </div>
 </template>
 
 <script>
+import AssignTest from "../components/AssignTest"
 import MuChoose from "../components/MuChoose"
 import MovingModal from "../components/MovingModal"
 import LazyLoadTree from "../components/LazyLoadTree"
@@ -35,6 +37,7 @@ export default {
   components: {
       LazyLoadTree,
       MovingModal,
+      AssignTest,
       TreeTable,
       MuChoose,
       LvSelect,
