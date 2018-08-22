@@ -2,7 +2,11 @@
     <div class="body">
         <router-link to="/6068355004487797345/about">sadfasdf</router-link>
         <h1>This is an body page</h1>
-        <paste></paste>
+        <ul>
+            <li v-for="ele in maxLayer" :key="ele" @click="layer = ele">{{ele}}</li>
+        </ul>
+            <TreeTable style="width:600px" :headData="head" :treeLayer="layer" :bodyData="data" choosedType="mu" pIdName="pid" @getClicked="getClicked" @maxLayer="getMaxLayer" @getChooseBox="getChooseBox"></TreeTable>
+        <!-- <paste></paste>
         <button @click="moving = true">点击出框</button>
         <div style="width:1500px;height:500px;margin-left:100px;">
             <LazyLoadTree :headData="head" url="/api/vi/projects/15470987469763243477/projectcraft/element/list" :params="{parentId:''}" :bodyData="data" pIdName="parentId" @getClicked="getClicked" @getChooseBox="getChooseBox"></LazyLoadTree>
@@ -10,15 +14,15 @@
         <div style="margin-left:900px;">
             <lv-select :data="selectData" multiple filterable></lv-select>
         </div>
-        <moving-modal v-if="moving" title="介是个标题" @close="moving = false"></moving-modal>
+        <moving-modal v-if="moving" title="介是个标题" @close="moving = false"></moving-modal> -->
         <div style="position:absolute;left:0;top:0">
             <!-- <spe-nav></spe-nav> -->
         </div>
         <!-- <mu-choose chooseDom=".demo_li" @getChoosedDom="getChoosedDom"></mu-choose> -->
-        <ul class="demo_ul">
+        <!-- <ul class="demo_ul">
             <li v-for="ele in ulData" :key="ele.id" :id="`demo-li${ele.id}`" class="demo_li" :class="ele.isChoose ? 'active' : ''">{{ele.name}}</li>
-        </ul>
-        <assign-test></assign-test>
+        </ul> -->
+        <!-- <assign-test></assign-test> -->
     </div>
 </template>
 
@@ -51,6 +55,9 @@ export default {
           head:[
               {name:"",value:"checkbox"},
               {name:"名称",value:"name",width:"300px"},
+              {name:"类型",value:"type",width:"100px"},
+              {name:"任务数",value:"orderNum",width:"100px"},
+              {name:"编码",value:"code",width:"100px"},
           ],
           data:[],
           ulData:[
@@ -63,18 +70,24 @@ export default {
               {name:"g",id:7,isChoose:false},
               {name:"h",id:8,isChoose:false},
               {name:"i",id:9,isChoose:false},
-          ]
+          ],
+          layer:2,
+          maxLayer:0,
           }
   },
   created(){
-      this.data.forEach(ele => {
-          ele.num = parseInt(ele.id.toString().slice(0,2))
-      })
-      this.$get(this.$api.getTreeData("15470987469763243477","")).then(res => {
-          this.data = res.data.data || []
-      })
+      this.data = testData.data
+    //   this.data.forEach(ele => {
+    //       ele.num = parseInt(ele.id.toString().slice(0,2))
+    //   })
+    //   this.$get(this.$api.getTreeData("15470987469763243477","")).then(res => {
+    //       this.data = res.data.data || []
+    //   })
   },
     methods:{
+        getMaxLayer(num){
+            this.maxLayer = num;
+        },
         getClicked(info){
             console.log(info);
         },

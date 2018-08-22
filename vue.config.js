@@ -40,7 +40,7 @@ module.exports = {
         } else {
             return {
                 plugins:[
-                    new OpenBrowserPlugin({ url: 'http://localhost:'+ theDefaultPort +'/index.html#/6068355004487797345/VueRouteFrame',browser:'chrome' })
+                    new OpenBrowserPlugin({ url: 'http://localhost:'+ theDefaultPort +'/index.html#/6068355004487797345/VueRouteFrame'})
                 ],
             }
           // 为开发环境修改配置...

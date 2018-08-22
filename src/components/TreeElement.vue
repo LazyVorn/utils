@@ -20,7 +20,7 @@
                 </template>
             </div>
             <div class="lv_tree_table_box" v-show="info.isShow">
-                <TreeElement v-if="info.childNode" :treeData="info.childNode" :pIdName="pIdName" :width="width" :treeLayer="treeLayer + 1" @getArrowClick="getArrowClick" @getLiClick="getLiClick" :left="parseInt(left)+25" :order="order" :headData="headData" @getChooseBox="getChooseBox"></TreeElement>
+                <TreeElement v-if="info.childNode" :treeData="info.childNode" :pIdName="pIdName" :choosedType="choosedType" :width="width" :treeLayer="treeLayer + 1" @getArrowClick="getArrowClick" @getLiClick="getLiClick" :left="parseInt(left)+25" :order="order" :headData="headData" @getChooseBox="getChooseBox"></TreeElement>
             </div>
         </div>
     </div>
@@ -72,6 +72,10 @@ export default {
     treeLayer: {
       type: Number,
       default: 0
+    },
+    choosedType:{
+      type:String,
+      default:"normal"
     }
   },
   data() {
@@ -108,15 +112,20 @@ export default {
     checkboxFunc(e) {
       this.$set(e, "isChoosed", !e.isChoosed);
       this.$set(e, "halfChoosed", e.isChoosed);
-      !e.childNode
+      if(this.choosedType == "normal"){
+        !e.childNode
         ? ""
         : e.childNode.forEach(ele => {
             this.$set(ele, "isChoosed", e.isChoosed);
             this.$set(ele, "halfChoosed", e.isChoosed);
             !ele.childNode ? "" : this.checkboxChildFunc(ele);
           });
-      this.$forceUpdate();
-      this.$emit("getChooseBox", e[this.pIdName]);
+        this.$forceUpdate();
+        this.$emit("getChooseBox", e[this.pIdName]);
+      } else {
+        // this.$forceUpdate();
+        this.$emit("getChooseBox", null);
+      }
     },
     // //点击勾选框-找子集
     checkboxChildFunc(e) {
@@ -128,6 +137,9 @@ export default {
     },
     //准备向上传递用的id
     getChooseBox(pid) {
+      if((!pid || pid == null) && this.choosedType != "normal"){
+        return this.$emit("getChooseBox", null);
+      }
       let _num = 0,
         _half = 0,
         _obj = this.treeData.filter(ele => ele.id == pid)[0];

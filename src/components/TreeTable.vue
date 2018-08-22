@@ -9,16 +9,16 @@
         <div class="lv_head_wrap" :style="{right:scrollWidth + 'px'}">
             <div class="lv_table_wrap" :style="{width:computedWidth + 'px'}">
                 <template v-for="(ele,index) in headData">
-                    <span class="lv_head_th checkbox" v-if="ele.value == 'checkbox'" :style="{width:width[index]+'px'}">
+                    <span class="lv_head_th checkbox" v-if="ele.value == 'checkbox' && choosedType == 'normal'" :key="index" :style="{width:width[index]+'px'}">
                         <i class="lv_icon" @click.stop="checkboxFunc(ele)" :class="allIsClick ? 'lv_icon_check' : 'lv_icon_noCheck'"></i>
                     </span>
-                    <span class="lv_head_th" v-else :style="{width:width[index]+'px'}">{{ele.name}}</span>
+                    <span class="lv_head_th" v-else :key="index" :style="{width:width[index]+'px'}">{{ele.name}}</span>
                 </template>
             </div>
         </div>
         <div class="lv_body_wrap" @scroll="scrollFunc">
             <div class="lv_table_wrap" :style="computedWidth > tableWidth ? {width:computedWidth + 'px'} : {}" v-if="data.length > 0">
-                <TreeElement :treeData="treeData" :order="order" :pIdName="pIdName" :treeLayer="0" :width="width" @getLiClick="getLiClick" @getChooseBox="getChooseBox" @finishLoading="loading = false" :headData="headData"></TreeElement>
+                <TreeElement :treeData="treeData" :order="order" :choosedType="choosedType" :pIdName="pIdName" :treeLayer="0" :width="width" @getLiClick="getLiClick" @getChooseBox="getChooseBox" @finishLoading="loading = false" :headData="headData"></TreeElement>
             </div>
             <span class="lv_tips" v-else>暂无数据</span>
             <transition name="fade">
@@ -48,6 +48,11 @@ export default {
       type: String,
       default: "pId"
     },
+    //pid字段名,默认为pId,取决接口返回的JSON数据
+    treeLayer: {
+      type: Number,
+      default: 0
+    },
     //表格头数据
     headData: {
       type: Array,
@@ -61,6 +66,10 @@ export default {
       default: function() {
         return [];
       }
+    },
+    choosedType:{
+      type:String,
+      default:"normal"
     }
   },
   components: {
@@ -75,7 +84,8 @@ export default {
       scrollWidth: 20, //滚动条宽度
       allIsClick: false, //是否全部选中
       detailTimes: 0, //判断是否第一次递归数据,以防数据变动导致allIsClick触发
-      loading: false
+      loading: false,
+      maxLayer:0,//树型表格最大层级
     };
   },
   methods: {
@@ -127,58 +137,52 @@ export default {
     },
     //数据重建方法
     reBuildData(arr, type) {
-      console.time();
       var newArr = [],
         showToggle = this.allShow,
         _pid = this.pIdName,
-        _arr = [],
+        _cArr = [],
         _pArr = [];
       arr.forEach(ele => {
-        this.$set(ele, "isShow", showToggle);
         this.$set(ele, "isClicked", this.isClicked == ele.id ? true : false);
         if (ele[_pid] == null || ele[_pid] == "") {
           _pArr.push(ele);
         } else {
-          let _mark = 0;
-          for (let i = 0; i < arr.length; i++) {
-            if (arr[i][_pid] == ele.id) {
-              _mark++;
-              break;
-            }
-          }
-          ele.isLastElement = _mark == 0;
-          _arr.push(ele);
+          ele.isLastElement = !arr.some(_ele => _ele[_pid] == ele.id);
+          _cArr.push(ele);
         }
       });
-      console.timeEnd();
-      console.time();
       if (this.detailTimes != 0) {
         _pArr.forEach((ele, index) => {
-          this.$set(ele, "childNode", this.checkChildNode(ele.id, _arr, _pid));
+          ele.layer = 1;
+          this.$set(ele, "childNode", this.checkChildNode(ele.id, _cArr, _pid,ele.layer));
           newArr.push(ele);
         }, this);
       } else {
         _pArr.forEach((ele, index) => {
+          ele.layer = 1;
+          this.$set(ele, "isShow", showToggle);
           this.$set(ele, "halfChoosed", false);
-          this.$set(ele, "childNode", this.checkChildNode(ele.id, _arr, _pid));
+          this.$set(ele, "childNode", this.checkChildNode(ele.id, _cArr, _pid,ele.layer));
           newArr.push(ele);
         }, this);
       }
       this.detailTimes++;
-      console.timeEnd();
       return newArr;
     },
     //找出一个id下的所有子节点的方法 ，用于在递归遍历中
-    checkChildNode(cId, _arr, _pid) {
+    checkChildNode(cId, _arr, _pid,_layer) {
       let currentArr = [];
       _arr.forEach(function(element, index) {
         if (element[_pid] == cId) {
+          element.layer = _layer + 1;
+          this.detailTimes != 0 ? "" : this.$set(element, "isShow", this.allShow);
+          this.maxLayer != 0 && this.maxLayer > element.layer ? "" : this.maxLayer = element.layer;
           element.isLastElement
             ? ""
             : this.$set(
                 element,
                 "childNode",
-                this.checkChildNode(element.id, _arr, _pid)
+                this.checkChildNode(element.id, _arr, _pid,element.layer)
               );
           element.isLastElement || element.childNode.length == 0
             ? (element.childNode = null)
@@ -271,17 +275,31 @@ export default {
   watch: {
     //深拷贝,以免递归时添加的字段影响到父组件的数据
     bodyData(newVal, oldVal) {
-      this.data = JSON.parse(JSON.stringify(newVal));
+      // this.data = JSON.parse(JSON.stringify(newVal));
+      this.data = newVal;
       this.treeData = this.reBuildData(this.data);
-      this.data.length > 0 ? (this.loading = true) : "";
+      this.$emit("maxLayer",this.maxLayer)
+      this.data.length > 0 && newVal.length != oldVal.length ? (this.loading = true) : "";
+    },
+    treeLayer(newVal,oldVal){
+        let _layer = newVal;
+        _layer == 0 ? this.data.forEach(ele => ele.isShow = true) : this.data.forEach(ele => {
+            ele.isShow = ele.layer < _layer ? true : false;
+        });
     }
   },
   mounted() {
     this.resize();
     window.addEventListener("resize", this.resize, false);
-    this.data = JSON.parse(JSON.stringify(this.bodyData));
+    // this.data = JSON.parse(JSON.stringify(this.bodyData));
+    this.data = this.bodyData;
     this.treeData = this.reBuildData(this.data);
+    this.$emit("maxLayer",this.maxLayer)
     this.scrollWidth = this.getScrollBarSize();
+    let _layer = this.treeLayer;
+    _layer == 0 ? this.data.forEach(ele => ele.isShow = true) : this.data.forEach(ele => {
+        ele.isShow = ele.layer < _layer ? true : false;
+    });
   }
 };
 </script>
