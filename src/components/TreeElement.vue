@@ -6,17 +6,23 @@
  */
 <template>
     <div class="lv_tree_element_wrap">
-        <div class="lv_tree_element_table" v-for="info in treeData" :key="info.id">
-            <div class="lv_tree_table_title" @click.stop="liClick(info,$event)" :class="[info.isClicked ? 'active' : '',`layer${treeLayer}`]">
+        <div class="lv_tree_element_table" v-for="info in treeData" :key="info[idName]">
+            <div class="lv_tree_table_title" @click.stop="liClick(info)" :class="[info.isClicked ? 'active' : '',`layer${treeLayer}`]">
                 <template v-for="(ele,index) in order">
-                    <span v-if="ele == 'name'" class="lv_ele_td lv_hasArrow" :style="{paddingLeft:left + 'px',width:width[index] + 'px'}" :title="info[order[index]]">
+                    <span v-if="ele == 'name'" class="lv_ele_td lv_hasArrow" 
+                    :key="index" :style="{paddingLeft:left + 'px',width:width[index] + 'px'}" 
+                    :title="info[order[index]]" @click.stop="liClick(info,order[index])">
                         <i class="lv_icon" v-if="(info.childNode) || info[pIdName] ==''" :class="info.isShow ? 'lv_icon_show' : 'lv_icon_hide'" @click.stop="arrowClick(info)"></i>
                         {{info[order[index]]}}
                     </span>
-                    <span v-else-if="ele == 'checkbox'" class="lv_ele_td" :style="{width:width[index] + 'px'}" :title="info[order[index]]">
+                    <span v-else-if="ele == 'checkbox'" class="lv_ele_td" 
+                    :key="index" :style="{width:width[index] + 'px'}" 
+                    :title="info[order[index]]" @click.stop="liClick(info,order[index])">
                         <i class="lv_icon" @click.stop="checkboxFunc(info)" :class="dealIcon(info)"></i>
                     </span>
-                    <span v-else class="lv_ele_td" :title="info[order[index]]" :style="{width:width[index] + 'px'}">{{info[order[index]]}}</span>
+                    <span v-else class="lv_ele_td" :title="info[order[index]]" 
+                    :key="index" :style="{width:width[index] + 'px'}"
+                    @click.stop="liClick(info,order[index])">{{info[order[index]]}}</span>
                 </template>
             </div>
             <div class="lv_tree_table_box" v-show="info.isShow">
@@ -34,6 +40,11 @@ export default {
     left: {
       type: Number,
       default: 0
+    },
+    //id字段名，默认为id，取决接口返回的JSON数据
+    idName: {
+      type: String,
+      default: "id"
     },
     //pid字段名,默认为pId,取决接口返回的JSON数据
     pIdName: {
@@ -93,8 +104,8 @@ export default {
       }
     },
     //点击行并高亮
-    liClick(ele, event) {
-      this.$emit("getLiClick", ele);
+    liClick(ele, col) {
+      this.$emit("getLiClick", {row:ele,col:col});
     },
     //冒泡用,传递高亮行信息
     getLiClick(info) {
@@ -125,6 +136,8 @@ export default {
       } else {
         // this.$forceUpdate();
         this.$emit("getChooseBox", null);
+        this.$emit("getLiClick", {row:e,col:"checkbox"});
+        // this.$emit("getLiClick", e);
       }
     },
     // //点击勾选框-找子集
@@ -142,7 +155,7 @@ export default {
       }
       let _num = 0,
         _half = 0,
-        _obj = this.treeData.filter(ele => ele.id == pid)[0];
+        _obj = this.treeData.filter(ele => ele[this.idName] == pid)[0];
       !_obj
         ? ""
         : _obj.childNode.forEach(ele => {

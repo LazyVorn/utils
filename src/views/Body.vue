@@ -5,7 +5,7 @@
         <ul>
             <li v-for="ele in maxLayer" :key="ele" @click="layer = ele">{{ele}}</li>
         </ul>
-            <TreeTable style="width:600px" :headData="head" :treeLayer="layer" :bodyData="data" choosedType="mu" pIdName="pid" @getClicked="getClicked" @maxLayer="getMaxLayer" @getChooseBox="getChooseBox"></TreeTable>
+            <TreeTable style="width:600px" :headData="head" :treeLayer="layer" :bodyData="data" choosedType="normal" pIdName="pid" @getClicked="getClicked" @maxLayer="getMaxLayer" @getChooseBox="getChooseBox"></TreeTable>
         <!-- <paste></paste>
         <button @click="moving = true">点击出框</button>
         <div style="width:1500px;height:500px;margin-left:100px;">
