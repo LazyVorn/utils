@@ -113,38 +113,32 @@ export default {
     },
     //收缩事件
     arrowClick(e) {
-      this.$set(e, "isShow", !e.isShow);
-      // e.isShow && e.childNode.length > 0 ? "" : this.$emit("getArrowClick",e)
+      e.isShow = !e.isShow;
     },
-    // getArrowClick(e){
-    //     this.$emit("getArrowClick",e)
-    // },
     //点击勾选框
     checkboxFunc(e) {
-      this.$set(e, "isChoosed", !e.isChoosed);
-      this.$set(e, "halfChoosed", e.isChoosed);
+      e.isChoosed = !e.isChoosed;
+      e.halfChoosed = e.isChoosed;
       if(this.choosedType == "normal"){
         !e.childNode
         ? ""
         : e.childNode.forEach(ele => {
-            this.$set(ele, "isChoosed", e.isChoosed);
-            this.$set(ele, "halfChoosed", e.isChoosed);
+            ele.isChoosed = e.isChoosed;
+            ele.halfChoosed = e.isChoosed;
             !ele.childNode ? "" : this.checkboxChildFunc(ele);
           });
         this.$forceUpdate();
         this.$emit("getChooseBox", e[this.pIdName]);
       } else {
-        // this.$forceUpdate();
         this.$emit("getChooseBox", null);
         this.$emit("getTrClick", {row:e,col:"checkbox"});
-        // this.$emit("getTrClick", e);
       }
     },
     // 点击勾选框-找子集
     checkboxChildFunc(e) {
       e.childNode.forEach(ele => {
-        this.$set(ele, "isChoosed", e.isChoosed);
-        this.$set(ele, "halfChoosed", e.isChoosed);
+        ele.isChoosed = e.isChoosed;
+        ele.halfChoosed = e.isChoosed;
         !ele.childNode ? "" : this.checkboxChildFunc(ele);
       });
     },

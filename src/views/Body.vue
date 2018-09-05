@@ -5,6 +5,7 @@
         <ul style="height:40px;list-style-type:none;">
             <li style="float:left;width:50px;height:40px;text-align:center;" v-for="ele in maxLayer" :key="ele" @click="layer = ele">{{ele}}</li>
         </ul>
+        <p @click="addData">ADDDATA</p>
             <TreeTable style="width:600px" :headData="head" :treeLayer="layer" 
             :bodyData="data" choosedType="normal" pIdName="pid"
             @getClicked="getClicked" @maxLayer="getMaxLayer" @getChooseBox="getChooseBox"></TreeTable>
@@ -87,6 +88,31 @@ export default {
     //   })
   },
     methods:{
+        addData(){
+            this.data.push({
+        "id": "15700654249721511",
+        "pid": "1570065226471707",
+        "name": "塞法",
+        "code": "3.4.1.3.1",
+        "type": "Segment",
+        "buildingId": "1569902158617948",
+        "floorId": "1569902217697631",
+        "specialtyId": null,
+        "orderNum": 1,
+        "taskCount": 0
+    }, {
+        "id": "15700654249895612",
+        "pid": "1570065226471707",
+        "name": "问问",
+        "code": "3.4.1.3.2",
+        "type": "Segment",
+        "buildingId": "1569902158617948",
+        "floorId": "1569902217697631",
+        "specialtyId": null,
+        "orderNum": 2,
+        "taskCount": 0
+    },)
+        },
         getMaxLayer(num){
             this.maxLayer = num;
         },

@@ -72,7 +72,13 @@ export default {
     choosedType:{
       type:String,
       default:"normal"
-    }
+    },
+    changeInfo:{
+      type:Array,
+      default(){
+        return []
+      }
+    },
   },
   components: {
     TreeElement
@@ -89,6 +95,7 @@ export default {
       loading: false,//加载状态
       maxLayer:0,//树型表格最大层级
       isChoosedId:[],//被选中的id集合
+      showData:[],
     };
   },
   methods: {
@@ -104,8 +111,8 @@ export default {
     checkboxFunc() {
       this.allIsClick = !this.allIsClick;
       this.data.forEach(ele => {
-        this.$set(ele, "isChoosed", this.allIsClick);
-        this.$set(ele, "halfChoosed", this.allIsClick);
+        ele.isChoosed = this.allIsClick;
+        ele.halfChoosed = this.allIsClick;
       });
       this.$emit("getChooseBox", this.allIsClick ? this.data : []);
     },
@@ -138,7 +145,7 @@ export default {
         _cArr = [],
         _pArr = [];
       arr.forEach(ele => {
-        this.$set(ele, "isShow", false);
+        this.$set(ele, "isShow", this.showData.includes(ele[_id]));
         this.$set(ele,"isChoosed",this.isChoosedId.includes(ele[_id]));
         this.$set(ele, "isClicked", this.isClickedId == ele[_id] ? true : false);
         if (ele[_pid] == null || ele[_pid] == "") {
@@ -151,14 +158,14 @@ export default {
       if (this.detailTimes != 0) {
         _pArr.forEach((ele, index) => {
           ele.layer = 1;
-          this.$set(ele, "childNode", this.checkChildNode(ele[_id], _cArr, _pid,ele.layer));
+          ele.childNode = this.checkChildNode(ele[_id], _cArr, _pid,ele.layer);
           newArr.push(ele);
         });
       } else {
         _pArr.forEach((ele, index) => {
           ele.layer = 1;
           this.$set(ele, "halfChoosed", false);
-          this.$set(ele, "childNode", this.checkChildNode(ele[_id], _cArr, _pid,ele.layer));
+          ele.childNode = this.checkChildNode(ele[_id], _cArr, _pid,ele.layer);
           newArr.push(ele);
         });
       }
@@ -172,16 +179,11 @@ export default {
         if (element[_pid] == cId) {
           element.layer = _layer + 1;
           this.maxLayer != 0 && this.maxLayer > element.layer ? "" : this.maxLayer = element.layer;
-          element.isLastElement
-            ? ""
-            : this.$set(
-                element,
-                "childNode",
-                this.checkChildNode(element[this.idName], _arr, _pid,element.layer)
-              );
-          element.isLastElement || element.childNode.length == 0
-            ? (element.childNode = null)
-            : "";
+          if(!element.isLastElement){
+            element.childNode = this.checkChildNode(element[this.idName], _arr, _pid,element.layer);
+          } else {
+            element.childNode = null;
+          }
           currentArr.push(element);
         }
       });
@@ -214,6 +216,15 @@ export default {
       document.body.removeChild(outer);
       cached = widthContained - widthScroll;
       return cached;
+    },
+    getShowData(){
+      let _arr = [];
+      this.data.forEach(ele => {
+        if(ele.isShow && !ele.isLastElement){
+          _arr.push(ele[this.idName]);
+        }
+      });
+      this.showData = _arr;
     }
   },
   computed: {
@@ -262,14 +273,14 @@ export default {
   watch: {
     //深拷贝,以免递归时添加的字段影响到父组件的数据
     bodyData(newVal, oldVal) {
+      this.getShowData();
       this.data = JSON.parse(JSON.stringify(newVal));
-      // this.data = newVal;
       this.treeData = this.reBuildData(this.data);
       this.$emit("maxLayer",this.maxLayer)
-      let _layer = this.treeLayer;
-      _layer == 0 ? this.data.forEach(ele => ele.isShow = true) : this.data.forEach(ele => {
-          ele.isShow = ele.layer < _layer ? true : false;
-      });
+      // let _layer = this.treeLayer;
+      // _layer == 0 ? this.data.forEach(ele => ele.isShow = true) : this.data.forEach(ele => {
+      //     ele.isShow = ele.layer < _layer ? true : false;
+      // });
       this.data.length > 0 && newVal.length != oldVal.length ? (this.loading = true) : "";
     },
     treeLayer(newVal,oldVal){
@@ -278,11 +289,22 @@ export default {
             ele.isShow = ele.layer < _layer ? true : false;
         });
     },
+    changeInfo(){
+      if(this.changeInfo.length == 0) return;
+      this.changeInfo.forEach(ele => {
+        this.data.forEach(_ele => {
+          if(_ele.id == ele.id){
+            _ele[ele.key] = ele.value; 
+          }
+        })
+      })
+    },
   },
   mounted() {
     this.resize();
     window.addEventListener("resize", this.resize, false);
     this.scrollWidth = this.getScrollBarSize();
+    this.getShowData();
     this.data = JSON.parse(JSON.stringify(this.bodyData));
     // this.data = this.bodyData;
     this.treeData = this.reBuildData(this.data);
