@@ -2,10 +2,12 @@
     <div class="body">
         <router-link to="/6068355004487797345/about">sadfasdf</router-link>
         <h1>This is an body page</h1>
-        <ul>
-            <li v-for="ele in maxLayer" :key="ele" @click="layer = ele">{{ele}}</li>
+        <ul style="height:40px;list-style-type:none;">
+            <li style="float:left;width:50px;height:40px;text-align:center;" v-for="ele in maxLayer" :key="ele" @click="layer = ele">{{ele}}</li>
         </ul>
-            <TreeTable style="width:600px" :headData="head" :treeLayer="layer" :bodyData="data" choosedType="normal" pIdName="pid" @getClicked="getClicked" @maxLayer="getMaxLayer" @getChooseBox="getChooseBox"></TreeTable>
+            <TreeTable style="width:600px" :headData="head" :treeLayer="layer" 
+            :bodyData="data" choosedType="normal" pIdName="pid"
+            @getClicked="getClicked" @maxLayer="getMaxLayer" @getChooseBox="getChooseBox"></TreeTable>
         <!-- <paste></paste>
         <button @click="moving = true">点击出框</button>
         <div style="width:1500px;height:500px;margin-left:100px;">
@@ -71,7 +73,7 @@ export default {
               {name:"h",id:8,isChoose:false},
               {name:"i",id:9,isChoose:false},
           ],
-          layer:2,
+          layer:0,
           maxLayer:0,
           }
   },
