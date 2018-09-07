@@ -16,8 +16,15 @@
         </div>
         <div style="margin-left:900px;">
             <lv-select :data="selectData" multiple filterable></lv-select>
-        </div>
-        <moving-modal v-if="moving" title="介是个标题" @close="moving = false"></moving-modal> -->
+        </div> -->
+        <moving-modal title="介是个标题" @close="moving = false">
+            <div class="edit_wrap">
+                <p><span>名称：</span><input id="edit-name" v-model="editObj.name" type="text"></p>
+                <p><span>类型：</span><input id="edit-type" v-model="editObj.type" type="text"></p>
+                <p><span>任务数：</span><input id="edit-orderNum" v-model="editObj.orderNum" type="text"></p>
+                <p><span>编码：</span><input id="edit-code" v-model="editObj.code" type="text"></p>
+            </div>
+        </moving-modal>
         <div style="position:absolute;left:0;top:0">
             <!-- <spe-nav></spe-nav> -->
         </div>
@@ -76,6 +83,12 @@ export default {
           ],
           layer:0,
           maxLayer:0,
+          editObj:{
+              name:"",
+              type:"",
+              orderNum:"",
+              code:""
+          }
           }
   },
   created(){
@@ -118,6 +131,11 @@ export default {
         },
         getClicked(info){
             console.log(info);
+            let _col = info.col || "name";
+            info.col == 'checkbox' ? _col = 'name' : "";
+            this.editObj = info.row;
+            document.getElementById(`edit-${_col}`).focus();
+            setTimeout(()=> document.getElementById(`edit-${_col}`).select(),0);
         },
         getChooseBox(arr){
             console.log(arr);
@@ -163,6 +181,26 @@ export default {
           background-color: rgb(120, 236, 252);
       }
     }
+  }
+  .edit_wrap{
+      box-sizing: border-box;
+      width: 100%;
+      height: 100%;
+      background-color: #fff;
+      padding-top: 50px;
+      input{
+          width: 200px;
+          height: 36px;
+          border-radius: 4px;
+          margin:5px 0;
+          outline: none;
+          border: 1px solid #dddee1;
+      }
+      span{
+          display: inline-block;
+          width: 60px;
+          margin-left: 50px;
+      }
   }
 }
 </style>

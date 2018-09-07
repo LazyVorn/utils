@@ -331,7 +331,7 @@ export default {
   height: 100%;
   overflow: auto;
   border: 1px solid #C3E0F5;
-  background-color: #D7EBF9;
+  background-color: #FFFFFF;
 }
 .lv_tree_wrap .lv_head_wrap {
   position: absolute;
@@ -351,7 +351,7 @@ export default {
   line-height: 40px;
   font-weight: 400;
   text-align: center;
-  background-color: #D7EBF9;
+  background-color: #FFFFFF;
 }
 .lv_tree_wrap .lv_head_wrap .lv_head_th:first-child {
   border-left: none;

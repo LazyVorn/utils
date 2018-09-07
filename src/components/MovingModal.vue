@@ -31,7 +31,7 @@ export default {
   data() {
     return {
       style: {
-        width: "1000px",
+        width: "400px",
         height: "600px",
         left: "100px",
         top: "100px"
@@ -115,6 +115,8 @@ export default {
   box-shadow: 2px 2px 5px #aaa;
   overflow: hidden;
   transition: 0.1s;
+  background-color: #fff;
+  border:1px solid #dddee1;
 }
 .move_modal_wrap.max {
   width: 100% !important;
@@ -129,7 +131,7 @@ export default {
   bottom: 0 !important;
 }
 .move_modal_wrap .move_modal_title {
-  border: 1px solid #dddee1;
+  border-bottom: 1px solid #dddee1;
   height: 34px;
   background-color: #fff;
   line-height: 34px;
@@ -179,9 +181,9 @@ export default {
   position: absolute;
   top: 34px;
   bottom: 0;
-  width: 100%;
+  left: 10px;
+  right: 10px;
   overflow: auto;
-  background-color: #ccc;
 }
 .move_modal_wrap .move_btn {
   position: absolute;
