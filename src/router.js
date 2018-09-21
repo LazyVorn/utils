@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Body from './views/Body.vue'
 import About from './views/About.vue'
+import Week from './views/Week.vue'
 
 Vue.use(Router)
 
@@ -16,6 +17,11 @@ export default new Router({
       path: '/:projectId/about',
       name: 'about',
       component: About
+    },
+    {
+      path: '/:projectId/Week',
+      name: 'Week',
+      component: Week
     }
   ]
 })
