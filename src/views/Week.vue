@@ -1,5 +1,5 @@
 <template>
-            <TaskTree style="width:100%" :headData="head" :treeLayer="layer" :maxDays="9"
+            <TaskTree style="width:1300px" :headData="head" :treeLayer="layer" :maxDays="9"
             :bodyData="data" choosedType="normal" pIdName="pId" startTime="2018-09-14" endTime="2018-09-21"></TaskTree>
 </template>
 

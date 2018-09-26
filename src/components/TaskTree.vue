@@ -310,7 +310,7 @@ export default {
   computed: {
     //单元格宽度数组,算出来的
     width() {
-      let _tableWidth = this.tableWidth;
+      let _tableWidth = this.tableWidth + 2;
       if (!this.$el) return [];
       let _totalWidth = 0;
       let _arr = this.headData.map((ele, index) => {
@@ -334,7 +334,7 @@ export default {
       });
       //   _arr[_arr.length-1] -= this.scrollWidth;
       //最后一格减一个滚动条的宽度
-      _arr[_arr.length - 1] -= this.scrollWidth + 2;
+      _arr[_arr.length - 1] -= this.scrollWidth;
       return _arr;
     },
     //用width数组算出来的实际宽度,用于单元列过多出现横向滚动条
@@ -381,8 +381,6 @@ export default {
     },
   },
   mounted() {
-    this.resize();
-    window.addEventListener("resize", this.resize, false);
     this.getDateArr();
     this.scrollWidth = this.getScrollBarSize();
     this.getShowData();
@@ -394,6 +392,8 @@ export default {
     _layer == 0 ? this.data.forEach(ele => ele.isShow = true) : this.data.forEach(ele => {
         ele.isShow = ele.layer < _layer ? true : false;
     });
+    this.resize();
+    window.addEventListener("resize", this.resize, false);
   }
 };
 </script>
