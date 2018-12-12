@@ -36,37 +36,37 @@ created(){
         ele.id = ele.itemId;
         ele.name = ele.segmentTaskName;
         ele.pId = ele.positionId ? ele.positionId : -1;
-        if(ele.buildingId){
-            if(!_rootObj[ele.buildingId]){
-                _rootObj[ele.buildingId] = ele.buildingName;
-                _rootArr.push({
-                    id:ele.buildingId,
-                    pId:null,
-                    name:ele.buildingName,
-                })
-            }
-        } 
         if(ele.positionId){
+            if(ele.buildingId){
+                if(!_rootObj[ele.buildingId]){
+                    _rootObj[ele.buildingId] = ele.buildingName;
+                    _rootArr.push({
+                        id:ele.buildingId,
+                        pId:null,
+                        name:ele.buildingName,
+                    })
+                }
+            } 
             if(!_segObj[ele.positionId]){
                 _segObj[ele.positionId] = ele.positionName;
                 _segArr.push({
                     id:ele.positionId,
-                    pId:ele.buildingId || null,
+                    pId:ele.buildingId == ele.positionId ? ele.buildingId + '' + ele.positionId : ele.buildingId,
                     name:ele.positionName,
                 })
             }
         } else {
             _mark ++;
         }
-        if(_mark > 0) {
-            _segArr.push({
-                id:-1,
-                pId:null,
-                name:"无部位"
-            })
-        }
-        this.data = [..._rootArr,..._segArr,...this.testData];
     })
+    if(_mark > 0) {
+        _segArr.push({
+            id:-1,
+            pId:null,
+            name:"无部位"
+        })
+    }
+    this.data = [..._rootArr,..._segArr,...this.testData];
 },
 methods:{
     getClicked(){

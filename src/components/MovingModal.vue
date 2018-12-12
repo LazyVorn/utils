@@ -107,7 +107,7 @@ export default {
 };
 </script>
 
-<style lang="less">
+<style>
 .move_modal_wrap {
   position: fixed;
   box-sizing: border-box;
@@ -117,6 +117,7 @@ export default {
   transition: 0.1s;
   background-color: #fff;
   border:1px solid #dddee1;
+  z-index: 999;
 }
 .move_modal_wrap.max {
   width: 100% !important;

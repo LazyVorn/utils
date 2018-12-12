@@ -7,7 +7,7 @@
         </ul>
         <p @click="addData">ADDDATA</p>
             <TreeTable style="width:600px" :headData="head" :treeLayer="layer" 
-            :bodyData="data" choosedType="normal" pIdName="pid"
+            :bodyData="treeData" choosedType="normal" pIdName="pid"
             @getClicked="getClicked" @maxLayer="getMaxLayer" @getChooseBox="getChooseBox"></TreeTable>
         <!-- <paste></paste>
         <button @click="moving = true">点击出框</button>
@@ -17,14 +17,14 @@
         <div style="margin-left:900px;">
             <lv-select :data="selectData" multiple filterable></lv-select>
         </div> -->
-        <moving-modal title="介是个标题" @close="moving = false">
+        <!-- <moving-modal title="介是个标题" @close="moving = false">
             <div class="edit_wrap">
                 <p><span>名称：</span><input id="edit-name" v-model="editObj.name" type="text"></p>
                 <p><span>类型：</span><input id="edit-type" v-model="editObj.type" type="text"></p>
                 <p><span>任务数：</span><input id="edit-orderNum" v-model="editObj.orderNum" type="text"></p>
                 <p><span>编码：</span><input id="edit-code" v-model="editObj.code" type="text"></p>
             </div>
-        </moving-modal>
+        </moving-modal> -->
         <div style="position:absolute;left:0;top:0">
             <!-- <spe-nav></spe-nav> -->
         </div>
@@ -88,7 +88,12 @@ export default {
               type:"",
               orderNum:"",
               code:""
-          }
+          },
+          treeData:[
+              {id:1,pid:null,name:1},
+              {id:2,pid:1,name:2},
+              {id:3,pid:2,name:3},
+          ]
           }
   },
   created(){
