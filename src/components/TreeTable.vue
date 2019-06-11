@@ -79,6 +79,12 @@ export default {
                 return []
             }
         },
+        choosedArr:{
+            type:Array,
+            default() {
+                return []
+            }
+        }
     },
     components: {
         TreeElement
@@ -297,11 +303,12 @@ export default {
                     if (_ele.id == ele.id) {
                         _ele[ele.key] = ele.value;
                     }
-                })
-            })
+                });
+            });
         },
     },
     mounted() {
+        this.isChoosedId = this.choosedArr;
         this.resize();
         window.addEventListener("resize", this.resize, false);
         this.scrollWidth = this.getScrollBarSize();
