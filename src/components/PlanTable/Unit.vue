@@ -1,7 +1,6 @@
 <template>
     <span class="cell" :style="getStyle(info)" :title="headObj.render ? '' : info[keyName]">
         <template v-if="keyName == 'checkbox'">
-            <!-- <span @click.stop="choosed">{{info.isChoosed}}</span> -->
             <i class="bimicon check_btn" 
             :class="info.isChoosed ? 'icon-xuanzhong' : 'icon-weixuanzhong'"
             @click.stop="choosed"></i>
@@ -11,13 +10,13 @@
             :class="info.isShow ? 'icon-zhankai1' : 'icon-zhankai'"
             @click.stop="toggle"></i>
             <template v-if="headObj.render">
-                <Cell :row="keyName" :column="info" :index="index" :render="headObj.render"></Cell>
+                <Cell :row="info" :column="keyName" :index="index" :render="headObj.render"></Cell>
             </template>
             <template v-else>{{info[keyName]}}</template>
         </template>
         <template v-else>
             <template v-if="headObj.render">
-                <Cell :row="keyName" :column="info" :index="index" :render="headObj.render"></Cell>
+                <Cell :row="info" :column="keyName" :index="index" :render="headObj.render"></Cell>
             </template> 
             <template v-else>{{info[keyName]}}</template>
         </template>
@@ -25,6 +24,7 @@
 </template>
 
 <script>
+import Cell from './cell'
 export default {
     name:"Unit",
     props:{
@@ -52,6 +52,9 @@ export default {
                 return {}
             }
         }
+    },
+    components: {
+        Cell
     },
     methods: {
         // 点击伸缩箭头

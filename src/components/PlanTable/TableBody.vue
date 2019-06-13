@@ -52,12 +52,12 @@ export default {
     methods: {
         // 获取勾选事件并上传
         getChoosed(){
-            let _arr = this.bakData.forEach(ele => ele.isChoosed)
+            let _arr = this.bakData.forEach(ele => ele.isChoosed);
             this.$emit('getChoosed',_arr);
         },
         // 点击事件
         getTrClick(obj){
-            this.bakData.forEach(ele => ele.isClicked = ele.id == obj.id)
+            this.bakData.forEach(ele => this.$set(ele,'isClicked', ele.id == obj.id));
             this.$emit('getTrClick',obj);
         }
     }

@@ -1,6 +1,6 @@
 <template>
     <div class="table_tr">
-        <div class="table_title" :class="info.isClicked ? 'active' : ''" @click.stop="getTrClick">
+        <div class="table_title" :class="info.isClicked ? 'active' : ''" @click.stop="getTrClick(info)">
             <template v-for="(head,index) in headArr">
                 <div class="table_td" :class="[head.hasArrow ? 'arrow' : '']" :style="{width:head.width}" :key="head.id">
                     <Unit :info="info" :keyName="head.id" :index="index" :headObj="head" @getChoosed="getChoosed"></Unit>
@@ -54,8 +54,8 @@ export default {
             this.$emit('getChoosed',this.info);
         },
         // 点击事件
-        getTrClick(){
-            this.$emit('getTrClick',this.info);
+        getTrClick(obj){
+            this.$emit('getTrClick',obj);
         }
     }
 }
@@ -72,6 +72,7 @@ export default {
             box-sizing: border-box;
             width: 100%;
             height: 40px;
+            border-bottom:1px solid #c3e0f5;
             font-size: 0;
             &.active{
                 background-color: #ebf7ff;
@@ -83,7 +84,6 @@ export default {
                 font-size: 14px;
                 border-right:1px solid #c3e0f5;
                 border-left:1px solid transparent;
-                border-bottom:1px solid #c3e0f5;
                 &.hide{
                     border-right:1px solid transparent;
                 }

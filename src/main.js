@@ -34,11 +34,19 @@ axios.interceptors.request.use(
     }  
 ) 
 
+import Util from '../src/utils/utils'
+import DateInput from './components/DateInput.vue'
+import LvSelect from './components/LvSelect.vue'
 Vue.prototype.$tj = tj
 Vue.prototype.$api = api
 Vue.prototype.$get = axios.get
 Vue.prototype.$post = axios.post
 Vue.prototype.$Message = Message
+
+Vue.prototype.$Util = Util
+
+Vue.component('LvSelect', LvSelect);
+Vue.component('DateInput', DateInput);
 
 
 Vue.use(VueAxios,axios);
