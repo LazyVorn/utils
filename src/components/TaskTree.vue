@@ -1,49 +1,84 @@
-/*
- * @Name: 树形表格组件
- * @Author: 李荣男
- * @Date: 2018-06-08 14:32:42
- * @Last Modified by: 李荣男
- */
 <template>
-    <div class="lv_tree_wrap">
-        <div class="lv_head_wrap" ref="lvHeadWrap" :style="{right:scrollWidth + 'px'}">
-            <div class="lv_table_wrap" :style="{width:computedWidth + 'px'}">
-                <template v-for="(ele,index) in headData">
-                    <span class="lv_head_th checkbox" v-if="ele.value == 'checkbox' && choosedType == 'normal'" :key="index" :style="{width:width[index]+'px'}">
-                        <i class="lv_icon" @click.stop="checkboxFunc(ele)" :class="allIsClick ? 'lv_icon_check' : 'lv_icon_noCheck'"></i>
-                    </span>
-                    <span class="lv_head_th time_tr" v-else-if="ele.value == 'gantt'" :key="index" :style="{width:width[index]+'px'}">
-                        <template v-if="dateArr.length <= maxDays">
-                            <p>
-                                <span v-for="(ele,index) in dateArr" :key="index" :style="{width:1/dateArr.length * 100 + '%'}">{{dayArr[new Date(ele).getDay()]}}</span>
-                            </p>
-                            <p>
-                                <span v-for="(ele,index) in dateArr" :key="index" :title="changeDateFormat(ele)" :style="{width:1/dateArr.length * 100 + '%'}">{{changeDateFormat(ele).slice(8)}}</span>
-                            </p>
-                        </template>
-                        <template v-else>
-                            <h1>提示:日期超出,当前展示最大值为{{maxDays}}日</h1>
-                        </template>
-                    </span>
-                    <span class="lv_head_th" v-else :key="index" :style="{width:width[index]+'px'}">{{ele.name}}</span>
-                </template>
-            </div>
-        </div>
-        <div class="lv_body_wrap" ref="lvBodyWrap" @scroll="scrollFunc">
-            <div class="lv_table_wrap" :style="computedWidth > tableWidth ? {width:computedWidth + 'px'} : {}" v-if="data.length > 0">
-                <TaskTreeElement :treeData="treeData" :order="order" :choosedType="choosedType" 
-                :maxDays="maxDays" :startTime="startTime" :endTime="endTime"
-                :idName="idName" :pIdName="pIdName" :treeLayer="0" :width="width" :headData="headData" 
-                @getTrClick="getTrClick" @getChooseBox="getChooseBox" @finishLoading="loading = false"></TaskTreeElement>
-            </div>
-            <span class="lv_tips" v-else>暂无数据</span>
-            <transition name="fade">
-                <div class="lv_tt_layer" v-if="loading">
-                    <p>数据加载中......</p>
-                </div>
-            </transition>
-        </div>
+  <div class="lv_tree_wrap">
+    <div class="lv_head_wrap" ref="lvHeadWrap" :style="{ right: scrollWidth + 'px' }">
+      <div class="lv_table_wrap" :style="{ width: computedWidth + 'px' }">
+        <template v-for="(ele, index) in headData">
+          <span
+            class="lv_head_th checkbox"
+            v-if="ele.value == 'checkbox' && choosedType == 'normal'"
+            :key="index"
+            :style="{ width: width[index] + 'px' }"
+          >
+            <i
+              class="lv_icon"
+              @click.stop="checkboxFunc(ele)"
+              :class="allIsClick ? 'lv_icon_check' : 'lv_icon_noCheck'"
+            ></i>
+          </span>
+          <span
+            class="lv_head_th time_tr"
+            v-else-if="ele.value == 'gantt'"
+            :key="index"
+            :style="{ width: width[index] + 'px' }"
+          >
+            <template v-if="dateArr.length <= maxDays">
+              <p>
+                <span
+                  v-for="(ele, index) in dateArr"
+                  :key="index"
+                  :style="{ width: (1 / dateArr.length) * 100 + '%' }"
+                  >{{ dayArr[new Date(ele).getDay()] }}</span
+                >
+              </p>
+              <p>
+                <span
+                  v-for="(ele, index) in dateArr"
+                  :key="index"
+                  :title="changeDateFormat(ele)"
+                  :style="{ width: (1 / dateArr.length) * 100 + '%' }"
+                  >{{ changeDateFormat(ele).slice(8) }}</span
+                >
+              </p>
+            </template>
+            <template v-else>
+              <h1>提示:日期超出,当前展示最大值为{{ maxDays }}日</h1>
+            </template>
+          </span>
+          <span class="lv_head_th" v-else :key="index" :style="{ width: width[index] + 'px' }">{{ ele.name }}</span>
+        </template>
+      </div>
     </div>
+    <div class="lv_body_wrap" ref="lvBodyWrap" @scroll="scrollFunc">
+      <div
+        class="lv_table_wrap"
+        :style="computedWidth > tableWidth ? { width: computedWidth + 'px' } : {}"
+        v-if="data.length > 0"
+      >
+        <TaskTreeElement
+          :treeData="treeData"
+          :order="order"
+          :choosedType="choosedType"
+          :maxDays="maxDays"
+          :startTime="startTime"
+          :endTime="endTime"
+          :idName="idName"
+          :pIdName="pIdName"
+          :treeLayer="0"
+          :width="width"
+          :headData="headData"
+          @getTrClick="getTrClick"
+          @getChooseBox="getChooseBox"
+          @finishLoading="loading = false"
+        ></TaskTreeElement>
+      </div>
+      <span class="lv_tips" v-else>暂无数据</span>
+      <transition name="fade">
+        <div class="lv_tt_layer" v-if="loading">
+          <p>数据加载中......</p>
+        </div>
+      </transition>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -54,74 +89,74 @@ export default {
     //id字段名,默认为pId,取决接口返回的JSON数据
     idName: {
       type: String,
-      default: "id"
+      default: "id",
     },
     //pid字段名,默认为pId,取决接口返回的JSON数据
     pIdName: {
       type: String,
-      default: "pId"
+      default: "pId",
     },
     //初始展开层级
     treeLayer: {
       type: Number,
-      default: 0
+      default: 0,
     },
     //表格头数据
     headData: {
       type: Array,
-      default: function() {
+      default: function () {
         return [];
-      }
+      },
     },
     //表格内容数据
     bodyData: {
       type: Array,
-      default: function() {
+      default: function () {
         return [];
-      }
+      },
     },
-    choosedType:{
-      type:String,
-      default:"normal"
+    choosedType: {
+      type: String,
+      default: "normal",
     },
-    changeInfo:{
-      type:Array,
-      default(){
-        return []
-      }
+    changeInfo: {
+      type: Array,
+      default() {
+        return [];
+      },
     },
-    maxDays:{
-        type:Number,
-        default:7,
+    maxDays: {
+      type: Number,
+      default: 7,
     },
     //计划开始时间
     startTime: {
       type: String,
-      default: Date.now()
+      default: Date.now(),
     },
     //计划完成时间
     endTime: {
       type: String,
-      default: Date.now()
+      default: Date.now(),
     },
   },
   components: {
-    TaskTreeElement
+    TaskTreeElement,
   },
   data() {
     return {
       data: [], //实际用到的表格内容数据,是bodyData的深拷贝
-      treeData: [],//递归后的数据
+      treeData: [], //递归后的数据
       isClickedId: "", //高亮行的id
       tableWidth: 0, //表格宽度,用来计算单元格宽度
       scrollWidth: 20, //滚动条宽度
       allIsClick: false, //是否全部选中
       detailTimes: 0, //判断是否第一次递归数据,以防数据变动导致allIsClick触发
-      loading: false,//加载状态
-      maxLayer:0,//树型表格最大层级
-      isChoosedId:[],//被选中的id集合
-      showData:[],
-      dateArr:[],
+      loading: false, //加载状态
+      maxLayer: 0, //树型表格最大层级
+      isChoosedId: [], //被选中的id集合
+      showData: [],
+      dateArr: [],
       //星期的数组
       dayArr: {
         0: "周日",
@@ -130,7 +165,7 @@ export default {
         3: "周三",
         4: "周四",
         5: "周五",
-        6: "周六"
+        6: "周六",
       },
     };
   },
@@ -146,32 +181,24 @@ export default {
       }
       this.dateArr = _arr;
     },
-    changeDateFormat(date,sign,type){
-    if(!date || date == "null" || date == "") return ""
-    sign ? "" : sign = "-"
-    date = typeof date != 'object' ? new Date(date) : date
-    let year = date.getFullYear(),
+    changeDateFormat(date, sign, type) {
+      if (!date || date == "null" || date == "") return "";
+      sign ? "" : (sign = "-");
+      date = typeof date != "object" ? new Date(date) : date;
+      let year = date.getFullYear(),
         month = parseInt(date.getMonth() + 1) > 9 ? date.getMonth() + 1 : "0" + "" + (date.getMonth() + 1),
         day = parseInt(date.getDate()) > 9 ? date.getDate() : "0" + "" + date.getDate();
-    if(type == 'number'){
-        return parseInt(`${year}${month}${day}`)
-    } else {
-        return `${year}${sign}${month}${sign}${day}`
-    }
-},
+      if (type == "number") {
+        return parseInt(`${year}${month}${day}`);
+      } else {
+        return `${year}${sign}${month}${sign}${day}`;
+      }
+    },
     changeDate(date) {
-    if(!date) return 0
-    let _date = typeof date != "object" ? new Date(date) : date
-  return new Date(
-    _date.getFullYear(),
-    _date.getMonth(),
-    _date.getDate(),
-    0,
-    0,
-    0,
-    0
-  ).getTime();
-},
+      if (!date) return 0;
+      let _date = typeof date != "object" ? new Date(date) : date;
+      return new Date(_date.getFullYear(), _date.getMonth(), _date.getDate(), 0, 0, 0, 0).getTime();
+    },
     //监听视窗变化,动态响应宽度
     resize() {
       this.tableWidth = this.$refs.lvHeadWrap.clientWidth;
@@ -183,7 +210,7 @@ export default {
     //点击全选键
     checkboxFunc() {
       this.allIsClick = !this.allIsClick;
-      this.data.forEach(ele => {
+      this.data.forEach((ele) => {
         ele.isChoosed = this.allIsClick;
         ele.halfChoosed = this.allIsClick;
       });
@@ -191,21 +218,21 @@ export default {
     },
     //获取勾选的单元行
     getChooseBox(ids) {
-      let _arr = this.data.filter(ele => ele.isChoosed);
+      let _arr = this.data.filter((ele) => ele.isChoosed);
       this.allIsClick = _arr.length == this.data.length;
-      this.isChoosedId = _arr.map(ele => ele[this.idName]);
+      this.isChoosedId = _arr.map((ele) => ele[this.idName]);
       this.$emit("getChooseBox", _arr);
     },
     //获取高亮的单元行
     getTrClick(info) {
-      let _id = this.idName
+      let _id = this.idName;
       this.isClickedId = info.row[_id];
-      this.data.forEach(ele => ele.isClicked = ele[_id] == info.row[_id])
+      this.data.forEach((ele) => (ele.isClicked = ele[_id] == info.row[_id]));
       this.$emit("getClicked", info);
     },
     //getTrClick专用,递归数据
     findChildIsClicked(child, id) {
-      child.forEach(_ele => {
+      child.forEach((_ele) => {
         _ele.isClicked = _ele[this.idName] == id ? true : false;
         !_ele.childNode ? "" : this.findChildIsClicked(_ele.childNode, id);
       });
@@ -217,50 +244,50 @@ export default {
         _pid = this.pIdName,
         _cArr = [],
         _pArr = [],
-        _obj = {index:0};
-      arr.forEach(ele => {
+        _obj = { index: 0 };
+      arr.forEach((ele) => {
         this.$set(ele, "isShow", this.showData.includes(ele[_id]));
-        this.$set(ele,"isChoosed",this.isChoosedId.includes(ele[_id]));
+        this.$set(ele, "isChoosed", this.isChoosedId.includes(ele[_id]));
         this.$set(ele, "isClicked", this.isClickedId == ele[_id] ? true : false);
         if (ele[_pid] == null || ele[_pid] == "") {
           _pArr.push(ele);
         } else {
-          ele.isLastElement = !arr.some(_ele => _ele[_pid] == ele[_id]);
+          ele.isLastElement = !arr.some((_ele) => _ele[_pid] == ele[_id]);
           _cArr.push(ele);
         }
       });
       if (this.detailTimes != 0) {
         _pArr.forEach((ele, index) => {
-            _obj.index ++;
-            ele._code = _obj.index;
+          _obj.index++;
+          ele._code = _obj.index;
           ele.layer = 1;
-          ele.childNode = this.checkChildNode(ele[_id], _cArr, _pid,ele.layer,_obj);
+          ele.childNode = this.checkChildNode(ele[_id], _cArr, _pid, ele.layer, _obj);
           newArr.push(ele);
         });
       } else {
         _pArr.forEach((ele, index) => {
-            _obj.index ++;
-            ele._code = _obj.index;
-            ele.layer = 1;
-            this.$set(ele, "halfChoosed", false);
-            ele.childNode = this.checkChildNode(ele[_id], _cArr, _pid,ele.layer,_obj);
-            newArr.push(ele);
+          _obj.index++;
+          ele._code = _obj.index;
+          ele.layer = 1;
+          this.$set(ele, "halfChoosed", false);
+          ele.childNode = this.checkChildNode(ele[_id], _cArr, _pid, ele.layer, _obj);
+          newArr.push(ele);
         });
       }
       this.detailTimes++;
       return newArr;
     },
     //找出一个id下的所有子节点的方法 ，用于在递归遍历中
-    checkChildNode(cId, _arr, _pid,_layer,_obj) {
+    checkChildNode(cId, _arr, _pid, _layer, _obj) {
       let currentArr = [];
-      _arr.forEach(element => {
+      _arr.forEach((element) => {
         if (element[_pid] == cId) {
-            _obj.index ++;
-            element._code = _obj.index;
+          _obj.index++;
+          element._code = _obj.index;
           element.layer = _layer + 1;
-          this.maxLayer != 0 && this.maxLayer > element.layer ? "" : this.maxLayer = element.layer;
-          if(!element.isLastElement){
-            element.childNode = this.checkChildNode(element[this.idName], _arr, _pid,element.layer,_obj);
+          this.maxLayer != 0 && this.maxLayer > element.layer ? "" : (this.maxLayer = element.layer);
+          if (!element.isLastElement) {
+            element.childNode = this.checkChildNode(element[this.idName], _arr, _pid, element.layer, _obj);
           } else {
             element.childNode = null;
           }
@@ -297,15 +324,15 @@ export default {
       cached = widthContained - widthScroll;
       return cached;
     },
-    getShowData(){
+    getShowData() {
       let _arr = [];
-      this.data.forEach(ele => {
-        if(ele.isShow && !ele.isLastElement){
+      this.data.forEach((ele) => {
+        if (ele.isShow && !ele.isLastElement) {
           _arr.push(ele[this.idName]);
         }
       });
       this.showData = _arr;
-    }
+    },
   },
   computed: {
     //单元格宽度数组,算出来的
@@ -319,7 +346,7 @@ export default {
           if (ele.width.toString().indexOf("px") > 1) {
             _width = ele.width.split("px")[0];
           } else if (ele.width.toString().indexOf("%") > 1) {
-            _width = parseFloat(ele.width.split("%")[0]) / 100 * _tableWidth;
+            _width = (parseFloat(ele.width.split("%")[0]) / 100) * _tableWidth;
           }
           _totalWidth += parseFloat(_width);
           return parseFloat(_width);
@@ -340,15 +367,15 @@ export default {
     //用width数组算出来的实际宽度,用于单元列过多出现横向滚动条
     computedWidth() {
       let _width = 0;
-      this.width.forEach(ele => {
+      this.width.forEach((ele) => {
         _width += ele;
       });
       return _width;
     },
     //用head做的body映射
     order() {
-      return this.headData.map(ele => ele.value);
-    }
+      return this.headData.map((ele) => ele.value);
+    },
   },
   watch: {
     //深拷贝,以免递归时添加的字段影响到父组件的数据
@@ -356,28 +383,30 @@ export default {
       this.getShowData();
       this.data = JSON.parse(JSON.stringify(newVal));
       this.treeData = this.reBuildData(this.data);
-      this.$emit("maxLayer",this.maxLayer)
+      this.$emit("maxLayer", this.maxLayer);
       // let _layer = this.treeLayer;
       // _layer == 0 ? this.data.forEach(ele => ele.isShow = true) : this.data.forEach(ele => {
       //     ele.isShow = ele.layer < _layer ? true : false;
       // });
       this.data.length > 0 && newVal.length != oldVal.length ? (this.loading = true) : "";
     },
-    treeLayer(newVal,oldVal){
-        let _layer = newVal;
-        _layer == 0 ? this.data.forEach(ele => ele.isShow = true) : this.data.forEach(ele => {
+    treeLayer(newVal, oldVal) {
+      let _layer = newVal;
+      _layer == 0
+        ? this.data.forEach((ele) => (ele.isShow = true))
+        : this.data.forEach((ele) => {
             ele.isShow = ele.layer < _layer ? true : false;
-        });
+          });
     },
-    changeInfo(){
-      if(this.changeInfo.length == 0) return;
-      this.changeInfo.forEach(ele => {
-        this.data.forEach(_ele => {
-          if(_ele.id == ele.id){
-            _ele[ele.key] = ele.value; 
+    changeInfo() {
+      if (this.changeInfo.length == 0) return;
+      this.changeInfo.forEach((ele) => {
+        this.data.forEach((_ele) => {
+          if (_ele.id == ele.id) {
+            _ele[ele.key] = ele.value;
           }
-        })
-      })
+        });
+      });
     },
   },
   mounted() {
@@ -387,14 +416,16 @@ export default {
     this.data = JSON.parse(JSON.stringify(this.bodyData));
     // this.data = this.bodyData;
     this.treeData = this.reBuildData(this.data);
-    this.$emit("maxLayer",this.maxLayer)
+    this.$emit("maxLayer", this.maxLayer);
     let _layer = this.treeLayer;
-    _layer == 0 ? this.data.forEach(ele => ele.isShow = true) : this.data.forEach(ele => {
-        ele.isShow = ele.layer < _layer ? true : false;
-    });
+    _layer == 0
+      ? this.data.forEach((ele) => (ele.isShow = true))
+      : this.data.forEach((ele) => {
+          ele.isShow = ele.layer < _layer ? true : false;
+        });
     this.resize();
     window.addEventListener("resize", this.resize, false);
-  }
+  },
 };
 </script>
 
@@ -411,8 +442,8 @@ export default {
   width: 100%;
   height: 100%;
   overflow: auto;
-  border: 1px solid #C3E0F5;
-  background-color: #D7EBF9;
+  border: 1px solid #c3e0f5;
+  background-color: #d7ebf9;
 }
 .lv_tree_wrap .lv_head_wrap {
   position: absolute;
@@ -427,42 +458,42 @@ export default {
   box-sizing: border-box;
   display: block;
   float: left;
-  border-left: 1px solid #C3E0F5;
+  border-left: 1px solid #c3e0f5;
   height: 76px;
   line-height: 76px;
   font-weight: 400;
   text-align: center;
-  background-color: #D7EBF9;
+  background-color: #d7ebf9;
 }
 .lv_tree_wrap .lv_head_wrap .lv_head_th:first-child {
   border-left: none;
 }
-.lv_tree_wrap .lv_head_wrap .lv_head_th.time_tr p{
-    box-sizing: border-box;
-    width: 100%;
-    height: 38px;
-    line-height: 38px;
-    text-align: center;
-    font-size: 12px;
+.lv_tree_wrap .lv_head_wrap .lv_head_th.time_tr p {
+  box-sizing: border-box;
+  width: 100%;
+  height: 38px;
+  line-height: 38px;
+  text-align: center;
+  font-size: 12px;
 }
 .lv_tree_wrap .lv_head_wrap .lv_head_th.time_tr p:first-child {
-    border-bottom: 1px solid #c3e0f5;
+  border-bottom: 1px solid #c3e0f5;
 }
-.lv_tree_wrap .lv_head_wrap .lv_head_th.time_tr p span{
-    display: block;
-    box-sizing: border-box;
-    float: left;
-    text-align: center;
-    text-indent: 0;
-    border-right: 1px solid #c3e0f5;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+.lv_tree_wrap .lv_head_wrap .lv_head_th.time_tr p span {
+  display: block;
+  box-sizing: border-box;
+  float: left;
+  text-align: center;
+  text-indent: 0;
+  border-right: 1px solid #c3e0f5;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
-.lv_tree_wrap .lv_head_wrap .lv_head_th.time_tr h1{
-    text-align: center;
-    text-indent: 0;
-    font-size: 12px;
+.lv_tree_wrap .lv_head_wrap .lv_head_th.time_tr h1 {
+  text-align: center;
+  text-indent: 0;
+  font-size: 12px;
 }
 .lv_tree_wrap .lv_body_wrap {
   position: absolute;
@@ -470,7 +501,7 @@ export default {
   top: 76px;
   bottom: 0;
   width: 100%;
-  border-top: 1px solid #C3E0F5;
+  border-top: 1px solid #c3e0f5;
   overflow-y: auto;
   background-color: #fff;
 }

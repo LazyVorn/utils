@@ -1,33 +1,46 @@
-/*
- * @Name: 树形表格组件
- * @Author: 李荣男
- * @Date: 2018-06-08 14:32:42
- * @Last Modified by: 李荣男
- */
 <template>
-    <div class="lv_tree_wrap">
-        <div class="lv_head_wrap" :style="{right:scrollWidth + 'px'}">
-            <div class="lv_table_wrap" :style="{width:computedWidth + 'px'}">
-                <template v-for="(ele,index) in headData">
-                    <span class="lv_head_th checkbox" v-if="ele.value == 'checkbox'" :style="{width:width[index]+'px'}">
-                        <i class="lv_icon" @click.stop="checkboxFunc(ele)" :class="allIsClick ? 'lv_icon_check' : 'lv_icon_noCheck'"></i>
-                    </span>
-                    <span class="lv_head_th" v-else :style="{width:width[index]+'px'}">{{ele.name}}</span>
-                </template>
-            </div>
-        </div>
-        <div class="lv_body_wrap" @scroll="scrollFunc">
-            <div class="lv_table_wrap" :style="computedWidth > tableWidth ? {width:computedWidth + 'px'} : {}" v-if="data.length > 0">
-                <TreeElement :treeData="treeData" :order="order" :pIdName="pIdName" :treeLayer="0" :width="width" @getArrowClick="getArrowClick" @getLiClick="getLiClick" @getChooseBox="getChooseBox" @finishLoading="loading = false" :headData="headData"></TreeElement>
-            </div>
-            <span class="lv_tips" v-else>暂无数据</span>
-            <transition name="fade">
-                <div class="lv_tt_layer" v-if="loading">
-                    <p>数据加载中......</p>
-                </div>
-            </transition>
-        </div>
+  <div class="lv_tree_wrap">
+    <div class="lv_head_wrap" :style="{ right: scrollWidth + 'px' }">
+      <div class="lv_table_wrap" :style="{ width: computedWidth + 'px' }">
+        <template v-for="(ele, index) in headData">
+          <span class="lv_head_th checkbox" v-if="ele.value == 'checkbox'" :style="{ width: width[index] + 'px' }">
+            <i
+              class="lv_icon"
+              @click.stop="checkboxFunc(ele)"
+              :class="allIsClick ? 'lv_icon_check' : 'lv_icon_noCheck'"
+            ></i>
+          </span>
+          <span class="lv_head_th" v-else :style="{ width: width[index] + 'px' }">{{ ele.name }}</span>
+        </template>
+      </div>
     </div>
+    <div class="lv_body_wrap" @scroll="scrollFunc">
+      <div
+        class="lv_table_wrap"
+        :style="computedWidth > tableWidth ? { width: computedWidth + 'px' } : {}"
+        v-if="data.length > 0"
+      >
+        <TreeElement
+          :treeData="treeData"
+          :order="order"
+          :pIdName="pIdName"
+          :treeLayer="0"
+          :width="width"
+          @getArrowClick="getArrowClick"
+          @getLiClick="getLiClick"
+          @getChooseBox="getChooseBox"
+          @finishLoading="loading = false"
+          :headData="headData"
+        ></TreeElement>
+      </div>
+      <span class="lv_tips" v-else>暂无数据</span>
+      <transition name="fade">
+        <div class="lv_tt_layer" v-if="loading">
+          <p>数据加载中......</p>
+        </div>
+      </transition>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -35,41 +48,41 @@ import TreeElement from "./TreeElement";
 export default {
   name: "LazyLoadTree",
   components: {
-    TreeElement
+    TreeElement,
   },
   props: {
     //pid字段名,默认为pId,取决接口返回的JSON数据
     pIdName: {
       type: String,
-      default: "pId"
+      default: "pId",
     },
     //表格头数据
     headData: {
       type: Array,
-      default: function() {
+      default: function () {
         return [];
-      }
+      },
     },
     //表格内容数据
     bodyData: {
       type: Array,
-      default: function() {
+      default: function () {
         return [];
-      }
+      },
     },
     url: {
       type: String,
-      default: ""
+      default: "",
     },
     params: {
       type: Object,
-      default: function() {
+      default: function () {
         return {};
-      }
+      },
     },
   },
   components: {
-    TreeElement
+    TreeElement,
   },
   data() {
     return {
@@ -81,29 +94,24 @@ export default {
       allIsClick: false, //是否全部选中
       detailTimes: 0, //判断是否第一次递归数据,以防数据变动导致allIsClick触发
       loading: false,
-      backupData:[]
+      backupData: [],
     };
   },
   methods: {
     //监听视窗变化,动态响应宽度
     resize() {
-      this.tableWidth = this.$el.querySelectorAll(
-        ".lv_head_wrap"
-      )[0].clientWidth;
+      this.tableWidth = this.$el.querySelectorAll(".lv_head_wrap")[0].clientWidth;
     },
     //监听滚动,如果列过多出现横向滚动条,需要让表格头的scrollLeft随着实时变动
     scrollFunc() {
       //没用id和ref是怕一个页面引用多个treeTable而导致id或ref重复
-      this.$el.querySelectorAll(
-        ".lv_head_wrap"
-      )[0].scrollLeft = this.$el.querySelectorAll(
-        ".lv_body_wrap"
-      )[0].scrollLeft;
+      this.$el.querySelectorAll(".lv_head_wrap")[0].scrollLeft =
+        this.$el.querySelectorAll(".lv_body_wrap")[0].scrollLeft;
     },
     //点击全选键
     checkboxFunc() {
       this.allIsClick = !this.allIsClick;
-      this.data.forEach(ele => {
+      this.data.forEach((ele) => {
         this.$set(ele, "isChoosed", this.allIsClick);
         this.$set(ele, "halfChoosed", this.allIsClick);
       });
@@ -111,14 +119,14 @@ export default {
     },
     //获取勾选的单元行
     getChooseBox(ids) {
-      let _arr = this.data.filter(ele => ele.isChoosed);
+      let _arr = this.data.filter((ele) => ele.isChoosed);
       this.allIsClick = _arr.length == this.data.length;
       this.$emit("getChooseBox", _arr);
     },
     //获取高亮的单元行
     getLiClick(info) {
       this.isClickedId = info.id;
-      this.treeData.forEach(ele => {
+      this.treeData.forEach((ele) => {
         ele.isClicked = ele.id == info.id ? true : false;
         !ele.childNode ? "" : this.findChildisClicked(ele.childNode, info.id);
       });
@@ -126,38 +134,38 @@ export default {
     },
     //getLiClick专用,递归数据
     findChildisClicked(child, id) {
-      child.forEach(_ele => {
+      child.forEach((_ele) => {
         _ele.isClicked = _ele.id == id ? true : false;
         !_ele.childNode ? "" : this.findChildisClicked(_ele.childNode, id);
       });
     },
-    dealRootData(arr){
-        let _arr = [];
-        arr.forEach(ele => {
+    dealRootData(arr) {
+      let _arr = [];
+      arr.forEach((ele) => {
         this.$set(ele, "isShow", false);
         this.$set(ele, "halfChoosed", false);
         this.$set(ele, "childNode", []);
         this.$set(ele, "isClicked", this.isClicked == ele.id ? true : false);
         _arr.push(ele);
       });
-      this.backupData = [..._arr]
+      this.backupData = [..._arr];
       return _arr;
     },
-    dealChildData(url,id,parent){
-        this.$get(this.$api.getTreeData("15470987469763243477",id)).then(res => {
-            let _arr = res.data.data || [];
-            _arr.forEach(ele => {
-                ele.type == "构件" ? "" : this.$set(ele, "isShow", false);
-                this.$set(ele, "halfChoosed", false);
-                this.$set(ele, "childNode", ele.type == "构件" ? null : []);
-                this.$set(ele, "isClicked", this.isClicked == ele.id ? true : false);
-            });
-            this.backupData = [...this.backupData,..._arr]
-            parent.childNode = [..._arr];
+    dealChildData(url, id, parent) {
+      this.$get(this.$api.getTreeData("15470987469763243477", id)).then((res) => {
+        let _arr = res.data.data || [];
+        _arr.forEach((ele) => {
+          this.$set(ele, "isShow", false);
+          this.$set(ele, "halfChoosed", false);
+          this.$set(ele, "childNode", []);
+          this.$set(ele, "isClicked", this.isClicked == ele.id ? true : false);
         });
+        this.backupData = [...this.backupData, ..._arr];
+        parent.childNode = [..._arr];
+      });
     },
-    getArrowClick(element){
-        this.dealChildData(this.url,element.id,element);
+    getArrowClick(element) {
+      this.dealChildData(this.url, element.id, element);
     },
     //获取滚动条宽度
     getScrollBarSize() {
@@ -194,7 +202,7 @@ export default {
 
       cached = widthContained - widthScroll;
       return cached;
-    }
+    },
   },
   computed: {
     //单元格宽度数组,算出来的
@@ -208,7 +216,7 @@ export default {
           if (ele.width.toString().indexOf("px") > 1) {
             _width = ele.width.split("px")[0];
           } else if (ele.width.toString().indexOf("%") > 1) {
-            _width = parseFloat(ele.width.split("%")[0]) / 100 * _tableWidth;
+            _width = (parseFloat(ele.width.split("%")[0]) / 100) * _tableWidth;
           }
           _totalWidth += _width;
           return parseFloat(_width);
@@ -229,15 +237,15 @@ export default {
     //用width数组算出来的实际宽度,用于单元列过多出现横向滚动条
     computedWidth() {
       let _width = 0;
-      this.width.forEach(ele => {
+      this.width.forEach((ele) => {
         _width += ele;
       });
       return _width;
     },
     //用head做的body映射
     order() {
-      return this.headData.map(ele => ele.value);
-    }
+      return this.headData.map((ele) => ele.value);
+    },
   },
   watch: {
     //深拷贝,以免递归时添加的字段影响到父组件的数据
@@ -245,7 +253,7 @@ export default {
       this.data = JSON.parse(JSON.stringify(newVal));
       this.treeData = this.dealRootData(this.data);
       this.data.length > 0 ? (this.loading = true) : "";
-    }
+    },
   },
   mounted() {
     this.resize();
@@ -253,7 +261,7 @@ export default {
     this.data = JSON.parse(JSON.stringify(this.bodyData));
     this.treeData = this.dealRootData(this.data);
     this.scrollWidth = this.getScrollBarSize();
-  }
+  },
 };
 </script>
 

@@ -1,110 +1,143 @@
-/*
- * @Name: 树形表格单元组件
- * @Author: 李荣男
- * @Date: 2018-06-08 14:32:42
- * @Last Modified by: 李荣男
- */
 <template>
-    <div class="lv_tree_element_wrap">
-        <div class="lv_tree_element_table" v-for="info in treeData" :key="info[idName]">
-            <div class="lv_tree_table_title" @click.stop="trClick(info)" :class="[info.isClicked ? 'active' : '',`layer${treeLayer}`]">
-                <template v-for="(ele,index) in order">
-                    <span v-if="ele == 'name'" class="lv_ele_td lv_hasArrow" 
-                    :key="index" :style="{paddingLeft:left + 'px',width:width[index] + 'px'}" 
-                    :title="info[order[index]]" @click.stop="trClick(info,order[index])">
-                        <i class="lv_icon" v-if="(info.childNode) || info[pIdName] ==''" :class="info.isShow ? 'lv_icon_show' : 'lv_icon_hide'" @click.stop="arrowClick(info)"></i>
-                        {{info[order[index]]}}
-                    </span>
-                    <span v-else-if="ele == 'gantt'" class="lv_ele_td" :key="index" :style="{width:width[index] + 'px'}">
-                        <gantt-line :maxDays="maxDays" :timeSlot="{start:startTime,end:endTime}" 
-                        :planTimeSlot="{start:info.planStartTime,end:info.planFinishTime ? info.planFinishTime : changeDate(endTime)+12*3600000}" 
-                        :realTimeSlot="{start:info.realStartTime,end:info.realFinishTime ? info.realFinishTime : null}"></gantt-line>
-                    </span>
-                    <span v-else class="lv_ele_td" :title="info[order[index]]" 
-                    :key="index" :style="{width:width[index] + 'px'}"
-                    @click.stop="trClick(info,order[index])">{{info[order[index]]}}</span>
-                </template>
-            </div>
-            <div class="lv_tree_table_box" v-show="info.isShow">
-                <TaskTreeElement v-if="info.childNode" :treeData="info.childNode" :pIdName="pIdName" 
-                :maxDays="maxDays" :startTime="startTime" :endTime="endTime" 
-                :choosedType="choosedType" :width="width" :treeLayer="treeLayer + 1" @getTrClick="getTrClick" :left="parseInt(left)+25" :order="order" :headData="headData" @getChooseBox="getChooseBox"></TaskTreeElement>
-            </div>
-        </div>
+  <div class="lv_tree_element_wrap">
+    <div class="lv_tree_element_table" v-for="info in treeData" :key="info[idName]">
+      <div
+        class="lv_tree_table_title"
+        @click.stop="trClick(info)"
+        :class="[info.isClicked ? 'active' : '', `layer${treeLayer}`]"
+      >
+        <template v-for="(ele, index) in order">
+          <span
+            v-if="ele == 'name'"
+            class="lv_ele_td lv_hasArrow"
+            :key="index"
+            :style="{ paddingLeft: left + 'px', width: width[index] + 'px' }"
+            :title="info[order[index]]"
+            @click.stop="trClick(info, order[index])"
+          >
+            <i
+              class="lv_icon"
+              v-if="info.childNode || info[pIdName] == ''"
+              :class="info.isShow ? 'lv_icon_show' : 'lv_icon_hide'"
+              @click.stop="arrowClick(info)"
+            ></i>
+            {{ info[order[index]] }}
+          </span>
+          <span v-else-if="ele == 'gantt'" class="lv_ele_td" :key="index" :style="{ width: width[index] + 'px' }">
+            <gantt-line
+              :maxDays="maxDays"
+              :timeSlot="{ start: startTime, end: endTime }"
+              :planTimeSlot="{
+                start: info.planStartTime,
+                end: info.planFinishTime ? info.planFinishTime : changeDate(endTime) + 12 * 3600000,
+              }"
+              :realTimeSlot="{ start: info.realStartTime, end: info.realFinishTime ? info.realFinishTime : null }"
+            ></gantt-line>
+          </span>
+          <span
+            v-else
+            class="lv_ele_td"
+            :title="info[order[index]]"
+            :key="index"
+            :style="{ width: width[index] + 'px' }"
+            @click.stop="trClick(info, order[index])"
+            >{{ info[order[index]] }}</span
+          >
+        </template>
+      </div>
+      <div class="lv_tree_table_box" v-show="info.isShow">
+        <TaskTreeElement
+          v-if="info.childNode"
+          :treeData="info.childNode"
+          :pIdName="pIdName"
+          :maxDays="maxDays"
+          :startTime="startTime"
+          :endTime="endTime"
+          :choosedType="choosedType"
+          :width="width"
+          :treeLayer="treeLayer + 1"
+          @getTrClick="getTrClick"
+          :left="parseInt(left) + 25"
+          :order="order"
+          :headData="headData"
+          @getChooseBox="getChooseBox"
+        ></TaskTreeElement>
+      </div>
     </div>
+  </div>
 </template>
 
 <script>
-import GanttLine from "../components/GanttLine"
+import GanttLine from "../components/GanttLine";
 export default {
   name: "TaskTreeElement",
-  components:{GanttLine},
+  components: { GanttLine },
   props: {
     //每层padding-left增加,作出分层效果
     left: {
       type: Number,
-      default: 0
+      default: 0,
     },
     //id字段名，默认为id，取决接口返回的JSON数据
     idName: {
       type: String,
-      default: "id"
+      default: "id",
     },
     //pid字段名,默认为pId,取决接口返回的JSON数据
     pIdName: {
       type: String,
-      default: "pId"
+      default: "pId",
     },
     //递归用的数据
     treeData: {
       type: Array,
-      default: function() {
+      default: function () {
         return [];
-      }
+      },
     },
     //单元格宽度数组
     width: {
       type: Array,
-      default: function() {
+      default: function () {
         return [];
-      }
+      },
     },
     //内容数据相对于表格头的映射
     order: {
       type: Array,
-      default: function() {
+      default: function () {
         return [];
-      }
+      },
     },
     //头部数据
     headData: {
       type: Array,
-      default: function() {
+      default: function () {
         return [];
-      }
+      },
     },
     //层级
     treeLayer: {
       type: Number,
-      default: 0
+      default: 0,
     },
-    choosedType:{
-      type:String,
-      default:"normal"
+    choosedType: {
+      type: String,
+      default: "normal",
     },
-    maxDays:{
-        type:Number,
-        default:7,
+    maxDays: {
+      type: Number,
+      default: 7,
     },
     //计划开始时间
     startTime: {
       type: String,
-      default: Date.now()
+      default: Date.now(),
     },
     //计划完成时间
     endTime: {
       type: String,
-      default: Date.now()
+      default: Date.now(),
     },
   },
   data() {
@@ -112,19 +145,11 @@ export default {
   },
   methods: {
     changeDate(date) {
-        if(!date) return 0
-        let _date = typeof date != "object" ? new Date(date) : date
-    return new Date(
-        _date.getFullYear(),
-        _date.getMonth(),
-        _date.getDate(),
-        0,
-        0,
-        0,
-        0
-    ).getTime();
+      if (!date) return 0;
+      let _date = typeof date != "object" ? new Date(date) : date;
+      return new Date(_date.getFullYear(), _date.getMonth(), _date.getDate(), 0, 0, 0, 0).getTime();
     },
-      //判断全选,半选,没选
+    //判断全选,半选,没选
     dealIcon(info) {
       if (info.isChoosed) {
         return "lv_icon_check";
@@ -136,7 +161,7 @@ export default {
     },
     //点击行并高亮
     trClick(ele, col) {
-      this.$emit("getTrClick", {row:ele,col:col});
+      this.$emit("getTrClick", { row: ele, col: col });
     },
     //冒泡用,传递高亮行信息
     getTrClick(info) {
@@ -150,24 +175,24 @@ export default {
     checkboxFunc(e) {
       e.isChoosed = !e.isChoosed;
       e.halfChoosed = e.isChoosed;
-      if(this.choosedType == "normal"){
+      if (this.choosedType == "normal") {
         !e.childNode
-        ? ""
-        : e.childNode.forEach(ele => {
-            ele.isChoosed = e.isChoosed;
-            ele.halfChoosed = e.isChoosed;
-            !ele.childNode ? "" : this.checkboxChildFunc(ele);
-          });
+          ? ""
+          : e.childNode.forEach((ele) => {
+              ele.isChoosed = e.isChoosed;
+              ele.halfChoosed = e.isChoosed;
+              !ele.childNode ? "" : this.checkboxChildFunc(ele);
+            });
         this.$forceUpdate();
         this.$emit("getChooseBox", e[this.pIdName]);
       } else {
         this.$emit("getChooseBox", null);
-        this.$emit("getTrClick", {row:e,col:"checkbox"});
+        this.$emit("getTrClick", { row: e, col: "checkbox" });
       }
     },
     // 点击勾选框-找子集
     checkboxChildFunc(e) {
-      e.childNode.forEach(ele => {
+      e.childNode.forEach((ele) => {
         ele.isChoosed = e.isChoosed;
         ele.halfChoosed = e.isChoosed;
         !ele.childNode ? "" : this.checkboxChildFunc(ele);
@@ -175,15 +200,15 @@ export default {
     },
     //准备向上传递用的id
     getChooseBox(pid) {
-      if((!pid || pid == null) && this.choosedType != "normal"){
+      if ((!pid || pid == null) && this.choosedType != "normal") {
         return this.$emit("getChooseBox", null);
       }
       let _num = 0,
         _half = 0,
-        _obj = this.treeData.filter(ele => ele[this.idName] == pid)[0];
+        _obj = this.treeData.filter((ele) => ele[this.idName] == pid)[0];
       !_obj
         ? ""
-        : _obj.childNode.forEach(ele => {
+        : _obj.childNode.forEach((ele) => {
             ele.isChoosed == true ? (_num += 1) : "";
             ele.halfChoosed == true ? (_half += 1) : "";
           });
@@ -199,18 +224,18 @@ export default {
       } else {
         this.$emit("getChooseBox", _obj[this.pIdName]);
       }
+    },
+  },
+  mounted() {
+    if (this.treeLayer == 0) {
+      this.$emit("finishLoading", true);
     }
   },
-  mounted(){
-      if(this.treeLayer == 0){
-          this.$emit("finishLoading",true)
-      }
+  watch: {
+    treeData() {
+      this.treeLayer == 0 ? this.$emit("finishLoading", true) : "";
     },
-    watch:{
-        treeData(){
-            this.treeLayer == 0 ? this.$emit("finishLoading",true) : ""
-        }
-    },
+  },
 };
 </script>
 
@@ -226,10 +251,10 @@ export default {
 .lv_tree_element_wrap .lv_tree_element_table .lv_tree_table_title {
   width: 100%;
   overflow: hidden;
-  border-bottom: 1px solid #C3E0F5;
+  border-bottom: 1px solid #c3e0f5;
 }
 .lv_tree_element_wrap .lv_tree_element_table .lv_tree_table_title.active {
-  background-color: #F5FAFE;
+  background-color: #f5fafe;
 }
 .lv_tree_element_wrap .lv_tree_element_table .lv_tree_table_title .lv_ele_td {
   box-sizing: border-box;
@@ -238,7 +263,7 @@ export default {
   height: 38px;
   line-height: 40px;
   text-align: center;
-  border-left: 1px solid #C3E0F5;
+  border-left: 1px solid #c3e0f5;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
@@ -301,7 +326,6 @@ export default {
   background-image: url("data:image/png;base64,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");
 }
 .lv_tree_element_wrap .lv_icon.lv_icon_hide {
-  background-image: url("data:image/png;base64,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")
+  background-image: url("data:image/png;base64,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");
 }
-
 </style>
